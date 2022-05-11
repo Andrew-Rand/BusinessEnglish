@@ -12,9 +12,12 @@ app = FastAPI()  # initial web application
     
 """
 
+# Endpoint's system
+
 
 @app.get('/')  # root endpoint
 async def root() -> Dict[str, Any]:
+    # await foo()  # you can add here a function and it will run in asynh
     return {"It's": "working"}
 
 
