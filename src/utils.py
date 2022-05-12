@@ -1,8 +1,10 @@
 from typing import Any
 
+from src.constants import STATUSES
 
-def std_response(status: int, info: Any):
+
+def std_response(status: str, info: Any):
     return {
-        "status": status,
+        "status": STATUSES.get(status),
         "info": info
     }

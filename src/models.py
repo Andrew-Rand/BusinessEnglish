@@ -1,4 +1,4 @@
-from typing import Union, List
+from typing import Union, List, Optional
 from uuid import UUID, uuid4
 from enum import Enum
 from pydantic import BaseModel
@@ -13,6 +13,10 @@ class Task(BaseModel):
     """To add a type of field, you need to use typehint after :. If you want to add a default value, use ="""
     id: UUID = uuid4()
     type: TaskType
-    russian: Union[str, List[str]]
-    english: Union[str, List[str]]
+    question: Union[str, List[str]]
+    answer: Union[str, List[str]]
 
+
+class TaskUpdateRequest(BaseModel):
+    question: Optional[Union[str, List[str]]]
+    answer: Optional[Union[str, List[str]]]
