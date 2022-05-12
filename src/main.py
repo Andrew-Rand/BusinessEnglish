@@ -94,6 +94,17 @@ async def delete_task(task_id: UUID) -> Dict[str, Any]:
 
 
 # TODO: Add endpoints for checking answers (use id of task in url and check the text from answer, handle types of tasks)
+@app.get('/api/v1/tasks/check/{task_id}/')
+async def check_the_answer(task_id: UUID) -> Dict[str, Any]:
+
+    # check type
+
+    # check answer
+
+    return std_response(status='OK', info={"id": task_id})
+
+
+
 @app.get('/hello/{name}')  # test atribute from url
 async def root(name: str) -> Dict[str, str]:
     return {"Hi": name}
