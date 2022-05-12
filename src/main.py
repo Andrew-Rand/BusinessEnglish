@@ -23,8 +23,24 @@ app = FastAPI()  # initial web application
 
 #fake database with fake task
 db: List[Task] = [
-    Task(id="691ce00a-490e-4c9c-938e-76f9044a8af4", type=TaskType.russian_to_english, question='Привет', answer=['Hi', 'Hello']),
-    Task(id="2cf66c85-43bb-4553-94e4-583e9790a60f", type=TaskType.english_to_russian, answer=['Привет', 'Здравствуйте'], question='Hi'),
+    Task(
+        id="691ce00a-490e-4c9c-938e-76f9044a8af4",
+        type=TaskType.russian_to_english,
+        question=['привет'],
+        answer=['hi', 'hello']
+    ),
+    Task(
+        id="2cf66c85-43bb-4553-94e4-583e9790a60f",
+        type=TaskType.english_to_russian,
+        answer=['привет', 'здравствуйте'],
+        question=['hi']
+    ),
+    Task(
+        id="2cf66c85-43bb-4553-94e4-583e9790a60f",
+        type=TaskType.join_phrase,
+        answer=['could you repeat please'],
+        question=['could', 'you', 'repeat', 'please']
+    ),
 ]
 
 # Endpoint's system
@@ -77,6 +93,7 @@ async def delete_task(task_id: UUID) -> Dict[str, Any]:
     raise HTTPException(status_code=404, detail=f'Task {task_id} does not exist')
 
 
+# TODO: Add endpoints for checking answers (use id of task in url and check the text from answer, handle types of tasks)
 @app.get('/hello/{name}')  # test atribute from url
 async def root(name: str) -> Dict[str, str]:
     return {"Hi": name}
