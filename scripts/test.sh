@@ -17,12 +17,12 @@ CWD="$(pwd)"
 #====================================================
 echo ">>> START LOCAL TEST DB"
 
-docker-compose -f docker-compose.${APP_ENV}.yaml down  # force delete test db container if the last time has finished with an error
-docker-compose -f docker-compose.${APP_ENV}.yaml up --build -d  # run test db container
+docker-compose -f docker-compose.${APP_ENV}.yml down  # force delete test db container if the last time has finished with an error
+docker-compose -f docker-compose.${APP_ENV}.yml up --build -d  # run test db container
 
 echo ">>> WAITING FOR POSTGRES START"
 
-./scripts/local/_waiting-for-postgres.sh
+./scripts/waiting-for-postgres.sh
 
 echo ">>> POSTGRES LAUNCHED SUCCESSFULLY"
 echo ">>> MIGRATE"
@@ -42,7 +42,7 @@ coverage report
 coverage html
 
 echo ">>> REMOVE TEST DB"
-docker-compose -f docker-compose.${APP_ENV}.yaml down
+docker-compose -f docker-compose.${APP_ENV}.yml down
 # END
 # ===================================================
 echo ">>> $(basename ${BASH_SOURCE[0]}) DONE"
