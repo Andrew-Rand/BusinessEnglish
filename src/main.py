@@ -5,6 +5,7 @@ from fastapi import FastAPI, HTTPException
 
 from src.constants import STATUSES
 from src.models import Task, TaskType, TaskUpdateRequest
+from src.task.router import router
 from src.utils import std_response
 
 
@@ -109,3 +110,8 @@ async def check_the_answer(task_id: UUID) -> Dict[str, Any]:
 async def root(name: str) -> Dict[str, str]:
     return {"Hi": name}
 
+
+
+
+
+app.include_router(router=router, prefix='/task', tags=['task'])

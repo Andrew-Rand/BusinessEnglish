@@ -16,3 +16,6 @@ test:
 
 lint:
 	./scripts/lint.sh
+
+start:
+	./scripts/start.sh
