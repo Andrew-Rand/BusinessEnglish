@@ -1,0 +1,39 @@
+version: "3.3"
+
+networks:
+  main:
+    driver: bridge
+
+services:
+  app:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: 'uvicorn src.main:app --reload --port 3000 --host 0.0.0.0'
+    volumes:
+      - ./:/usr/src/app/
+    ports:
+      - 3000:3000
+    expose:
+      - 3000
+    depends_on:
+      - db
+    networks:
+      - main
+
+  db:
+    image: postgres:12.8
+    volumes:
+        - postgres_data:/var/lib/postgresql/data/
+    environment:
+      POSTGRES_USER: "${POSTGRES_USER}"
+      POSTGRES_PASSWORD: "${POSTGRES_PASSWORD}"
+      POSTGRES_DB: "${POSTGRES_DB}"
+    ports:
+      - 8432:5432
+    networks:
+      - main
+
+volumes:
+  postgres_data:
