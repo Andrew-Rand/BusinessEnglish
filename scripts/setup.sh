@@ -10,22 +10,21 @@ set -o nounset # exit script when it tries to use undeclared variables
 
 # INIT WORKING DIR
 # ======================================================================================================
-cd "$(dirname "${BASH_SOURCE[0]}")" && cd ../..
+cd "$(dirname "${BASH_SOURCE[0]}")" && cd ..
 CWD="$(pwd)"
 
 
 
-# INSTALL PACKAGES
+# INSTALL PACKAGES (Use pipenv to install packages from pipfile (pip install pipenv || pipenv install))
 # ===================================================
-
-if [ -x "$(command -v pip)" ]; then
-  pip install -r requirements-dev.txt
-elif [ -x "$(command -v pip3)" ]; then
-  pip3 install -r requirements-dev.txt
-else
-  echo "No pip installed. Aborting"
-  exit 1
-fi
+#if [ -x "$(command -v pip)" ]; then
+#  pip install -r requirements.txt
+#elif [ -x "$(command -v pip3)" ]; then
+#  pip3 install -r requirements.txt
+#else
+#  echo "No pip installed. Aborting"
+#  exit 1
+#fi
 
 
 

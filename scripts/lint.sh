@@ -54,14 +54,6 @@ function lint() {
     start_section "LINTING PYLINT"
     pylint --errors-only -j 4 $1 --disable=import-error
     end_section 0
-
-    start_section "LINTING BLACK"
-    black --check $1
-    end_section 0
-
-    start_section "LINTING BANDIT"
-    bandit $1
-    end_section 0
 }
 
 
