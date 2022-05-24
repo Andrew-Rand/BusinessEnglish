@@ -7,6 +7,7 @@ name = "pypi"
 fastapi = "*"
 uvicorn = {extras = ["standart"], version = "*"}
 pydantic = "*"
+alembic = "*"
 
 [dev-packages]
 

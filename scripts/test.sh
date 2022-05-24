@@ -27,8 +27,8 @@ echo ">>> WAITING FOR POSTGRES START"
 echo ">>> POSTGRES LAUNCHED SUCCESSFULLY"
 echo ">>> MIGRATE"
 
-alembic upgrade head
-psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -d "${POSTGRES_DB}" -U "${POSTGRES_USER}" -f scripts/local/sql/initial_data.sql
+#alembic upgrade head
+#psql -h "${POSTGRES_HOST}" -p "${POSTGRES_PORT}" -d "${POSTGRES_DB}" -U "${POSTGRES_USER}" -f scripts/local/sql/initial_data.sql
 
 echo ">>> RUN TESTS"
 
