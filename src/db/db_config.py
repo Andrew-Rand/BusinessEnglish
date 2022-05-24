@@ -4,8 +4,14 @@ from sqlalchemy.ext.declarative import declarative_base
 
 from src.db.constants import user, passwd, host, port, db
 
-engine = create_engine(f"postgresql://{user}:{passwd}@{host}:{port}/{db}")
-db_session = sessionmaker(bind=engine, autocommit=False, autoflush=False)()
+
+def get_engine():
+    return create_engine(f"postgresql://{user}:{passwd}@{host}:{port}/{db}")
+
+
+def get_session():
+    engine = get_engine()
+    return sessionmaker(bind=engine, autoflush=False, autocommit=False, expire_on_commit=True)()
 
 
 Base = declarative_base()
