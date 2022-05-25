@@ -15,7 +15,9 @@ def validate_positive_number(field: str, value: int) -> None:
 
 
 def validate_email(field: str, value: str) -> None:
-    pass
+    reg_ex = r'([A-Za-z0-9]+[.-_])*[A-Za-z0-9]+@[A-Za-z0-9-]+(\.[A-Z|a-z]{2,})+'
+    if not match(reg_ex, value):
+        raise ValidationError(f'{value} for {field} must be an email: example@engmail.com')
 
 
 def validate_password(field: str, value: str) -> None:
@@ -27,5 +29,5 @@ def validate_password(field: str, value: str) -> None:
         [0-9a-zA-Z!@#$%^&*]{10,} - contains at least 10 of all this symbols.
     """
     if not match(reg_ex, value):
-        raise ValidationError(f'{value} for must be 8 and contains at least'
+        raise ValidationError(f'{value} for {field} must be 8 and contains at least'
                               f' number, lowercase and upper case, spec char')

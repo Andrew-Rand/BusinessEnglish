@@ -1,12 +1,10 @@
 from uuid import uuid4
 
-from pydantic import ValidationError
-from sqlalchemy import Column, String, Boolean, Integer,
+from sqlalchemy import Column, String, Boolean, Integer
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import validates
 
 from src.db.db_config import Base
-from src.task.serializers import TaskType
 from src.user.validators import validate_name, validate_positive_number, validate_password, validate_email
 
 
@@ -22,7 +20,6 @@ class User(Base):
     is_admin = Column(Boolean, default=False)
     successed_tasks = Column(Integer, default=0)
     streak = Column(Integer, default=0)
-
 
     @validates('username')
     def validate_username(self, field, value):
