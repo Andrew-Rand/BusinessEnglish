@@ -1,3 +1,4 @@
+from random import choice
 from typing import List
 from uuid import UUID
 
@@ -36,3 +37,8 @@ def update_task(db_session: Session, task_id: UUID, question: List[str], answer:
     db_session.commit()
     db_session.refresh(task)
     return task
+
+
+def get_random_task(db_session: Session) -> Query:
+    task_qs = db_session.query(Task).all()
+    return choice(task_qs)

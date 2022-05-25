@@ -33,13 +33,13 @@ async def create_task(request: RequestTask, db_session: Session = Depends(get_se
     return Response(code=201, status='Created', message='Success').dict(exclude_none=True)
 
 
-@router.get('/{task_id}/')
+@router.get('/task/{task_id}/')
 async def get_task_by_id(task_id: UUID, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     task_obj = api.get_task_by_id(db_session=db_session, task_id=task_id)
     return Response(code=200, status='Ok', message='Success', result=task_obj).dict(exclude_none=True)
 
 
-@router.put('/{task_id}/')
+@router.put('/task/{task_id}/')
 async def update_task(task_id: UUID, request: RequestTask, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     task_obj = api.update_task(
         db_session=db_session,
@@ -49,7 +49,7 @@ async def update_task(task_id: UUID, request: RequestTask, db_session: Session =
     return Response(code=200, status='Created', message='Success', result=task_obj).dict(exclude_none=True)
 
 
-@router.delete('/{task_id}/')
+@router.delete('/task/{task_id}/')
 async def delete_task(task_id: UUID, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     api.remove_task(db_session=db_session, task_id=task_id)
     return Response(code=200, status='Ok', message='Success').dict(exclude_none=True)
@@ -57,8 +57,9 @@ async def delete_task(task_id: UUID, db_session: Session = Depends(get_session))
 
 # Check the task
 @router.get('/get_random/')
-async def get_random_task():
-    pass
+async def get_random_task(db_session: Session = Depends(get_session)) -> Dict[str, Any]:
+    task_obj = api.get_random_task(db_session=db_session)
+    return Response(code=200, status='Ok', message='Success', result=task_obj).dict(exclude_none=True)
 
 
 @router.get('/check_task/{task_id}/')
