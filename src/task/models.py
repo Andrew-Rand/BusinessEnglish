@@ -3,7 +3,7 @@ from uuid import uuid4
 from sqlalchemy import Column, String, Enum
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from src.db.db_config import Base
-from src.models import TaskType
+from src.task.serializers import TaskType
 
 
 class Task(Base):

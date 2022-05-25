@@ -32,3 +32,7 @@ class Response(GenericModel):
     status: str
     message: str
     result: Any
+
+
+class CheckResponse(BaseModel):
+    answer: str
