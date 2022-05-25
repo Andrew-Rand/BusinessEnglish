@@ -1,5 +1,6 @@
 .idea
 .env
 .env.testing
+.coverage
 __pycache__
 src/__pycache__
