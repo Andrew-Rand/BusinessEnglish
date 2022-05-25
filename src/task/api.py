@@ -17,28 +17,36 @@ def get_task_by_id(db_session: Session, task_id: UUID) -> Query:
 
 
 def create_task(db_session: Session, task: TaskSchema) -> Task:
-    task = Task(type=task.type, question=task.question, answer=task.answer)
-    db_session.add(task)
+    task_obj = Task(type=task.type, question=task.question, answer=task.answer)
+    db_session.add(task_obj)
     db_session.commit()
-    db_session.refresh(task)
-    return task
+    db_session.refresh(task_obj)
+    return task_obj
 
 
 def remove_task(db_session: Session, task_id: UUID):
-    task = get_task_by_id(db_session=db_session, task_id=task_id)
-    db_session.delete(task)
+    task_obj = get_task_by_id(db_session=db_session, task_id=task_id)
+    db_session.delete(task_obj)
     db_session.commit()
 
 
 def update_task(db_session: Session, task_id: UUID, question: List[str], answer: List[str]) -> Task:
-    task = get_task_by_id(db_session=db_session, task_id=task_id)
-    task.question = question
-    task.answer = answer
+    task_obj = get_task_by_id(db_session=db_session, task_id=task_id)
+    task_obj.question = question
+    task_obj.answer = answer
     db_session.commit()
-    db_session.refresh(task)
-    return task
+    db_session.refresh(task_obj)
+    return task_obj
 
 
 def get_random_task(db_session: Session) -> Query:
     task_qs = db_session.query(Task).all()
     return choice(task_qs)
+
+
+def check_task(db_session: Session, task_id: UUID, answer: str) -> bool:
+    task_obj = get_task_by_id(db_session=db_session, task_id=task_id)
+    if answer.lower() in task_obj.answer:
+        return True
+    else:
+        return False

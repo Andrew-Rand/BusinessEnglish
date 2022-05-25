@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import TaskSchema, Response, RequestTask
+from src.task.serializers import TaskSchema, Response, RequestTask, CheckResponse
 
 router = APIRouter()
 
@@ -55,7 +55,7 @@ async def delete_task(task_id: UUID, db_session: Session = Depends(get_session))
     return Response(code=200, status='Ok', message='Success').dict(exclude_none=True)
 
 
-# Check the task
+# Check the task endpoints
 @router.get('/get_random/')
 async def get_random_task(db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     task_obj = api.get_random_task(db_session=db_session)
@@ -63,5 +63,8 @@ async def get_random_task(db_session: Session = Depends(get_session)) -> Dict[st
 
 
 @router.get('/check_task/{task_id}/')
-async def get_check_task(task_id: UUID):
-    pass
+async def check_task(task_id: UUID, request: CheckResponse, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
+    if api.check_task(db_session=db_session, task_id=task_id, answer=request.answer):
+        return Response(code=200, status='Ok', message='Success').dict(exclude_none=True)
+    else:
+        return Response(code=400, status='Bad request', message='Fail').dict(exclude_none=True)
