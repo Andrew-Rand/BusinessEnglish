@@ -23,6 +23,12 @@ class UserPostSchema(BaseModel):
     parameter: UserSchema = Field(...)
 
 
+class UserUpdateSchema(BaseModel):
+    username: str
+    email: str
+    is_admin: bool = False
+
+
 class UserLoginRequest(BaseModel):
     email: str
     password: str
@@ -30,6 +36,12 @@ class UserLoginRequest(BaseModel):
 
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
+
+class ChangePasswordRequest(BaseModel):
+    password: str
+    new_password: str
+    new_password_repeated: str
 
 
 class Response(GenericModel):

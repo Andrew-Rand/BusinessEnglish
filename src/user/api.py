@@ -35,19 +35,47 @@ def create_user(db_session: Session, user: UserSchema) -> User:
     return user_obj
 
 
+def update_user(db_session: Session, user_id: UUID, username: str, email: str) -> User:
+    user_obj = get_user_by_id(db_session=db_session, user_id=user_id)
+    user_obj.username = username
+    user_obj.email = email
+    db_session.commit()
+    db_session.refresh(user_obj)
+    return user_obj
+
+
+def change_password(db_session: Session, user_id: str, password: str, new_password: str, new_password_repeated: str, *args, **kwargs):
+
+    user_obj = get_user_by_id(db_session=db_session, user_id=user_id)
+    if user_obj is None:
+        raise Exception('User not found')
+    if not check_password_hash(user_obj.password, password):
+        raise Exception('Incorrect password')
+    if not new_password == new_password_repeated:
+        raise Exception('Write new password twice, please, check if they are equal')
+    hashed_password = generate_password_hash(password=new_password, method='sha256')
+    user_obj.password = hashed_password
+    db_session.commit()
+    db_session.refresh(user_obj)
+
+
 def login(db_session: Session, user: UserLoginRequest) -> Dict[str, str]:
     user_obj = db_session.query(User).filter(User.email == user.email).first()
-    if check_password_hash(user_obj.password, user.password):
-        user_id = str(user_obj.id)
-        access_token = create_token(user_id, time_delta_seconds=ACCESS_TOKEN_LIFETIME)
-        refresh_token = create_token(user_id, time_delta_seconds=REFRESH_TOKEN_LIFETIME)
+    if user_obj is None:
+        raise Exception('User not found')
+    if not check_password_hash(user_obj.password, user.password):
+        print(user.password)
+        raise Exception('Incorrect paassword')
+    user_id = str(user_obj.id)
+    access_token = create_token(user_id, time_delta_seconds=ACCESS_TOKEN_LIFETIME)
+    refresh_token = create_token(user_id, time_delta_seconds=REFRESH_TOKEN_LIFETIME)
 
-        response_data = {
-            'access_token': access_token,
-            'refresh_token': refresh_token
-        }
+    response_data = {
+        'access_token': access_token,
+        'refresh_token': refresh_token
+    }
 
-        return response_data
+    return response_data
 
 
 def refresh_token(db_session: Session, refresh_token: str) -> Dict[str, str]:
@@ -58,8 +86,6 @@ def refresh_token(db_session: Session, refresh_token: str) -> Dict[str, str]:
         raise Exception('expired refresh token, please login again.')
     except jwt.DecodeError:
         raise Exception('token data is incorrect')
-
-    print('aaa', payload['id'])
 
     user_obj = db_session.query(User).filter(User.id == payload['id']).first()
     if user_obj is None:

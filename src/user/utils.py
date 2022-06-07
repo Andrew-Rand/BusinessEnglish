@@ -1,9 +1,15 @@
 import datetime
-from typing import Callable, Any
+from functools import wraps
+from typing import Callable, Any, Union
 
+from fastapi import Header, Request
 import jwt
+from sqlalchemy.orm import Session
 
+from src.basecore.std_response import Response
+from src.db.db_config import get_session
 from src.user.constants import SECRET_KEY
+from src.user.models import User
 
 
 def create_token(user_id: str, time_delta_seconds: int) -> str:
@@ -18,17 +24,39 @@ def create_token(user_id: str, time_delta_seconds: int) -> str:
 
 
 def login_required(func: Any) -> Any:
-    def wrapper(*args: Any, **kwargs: Any) -> Response:
-        token = request.headers['token']
-        if not token:
-            return jsonify({'Alert!': 'Token is missing!'})
+    @wraps(func)
+    async def wrapper(Authorization: Union[str, None] = None, *args: Any, **kwargs: Any) -> Any:
+        # TODO: Move strings messages to constants
+        print(
+            Authorization
+        )
+        if not Authorization:
+            return Response(code=403, status='Forbidden', message='Token is missing').dict(exclude_none=True)
         try:
-            data = jwt.decode(token, app.config['SECRET_KEY'])
-            print(data)
+            payload = jwt.decode(Authorization, SECRET_KEY, algorithms=['HS256'])
+            print('aaa', payload)
         except jwt.ExpiredSignatureError:
-            return jsonify({'Message': 'http://localhost:8000/refresh'})
-        except jwt.InvalidTokenError:
-            return jsonify({'Message': 'Invalid token. Please log in again.'})
-        return func(*args, **kwargs)
+            return Response(code=403, status='Forbidden', message='Access token is expired, go to the refresh endpoint').dict(exclude_none=True)
+        except jwt.InvalidTokenError as e:
+            print(e)
+            return Response(code=403, status='Forbidden', message='Invalid token. Please log in again').dict(exclude_none=True)
+
+        with get_session() as session:
+            user_obj = session.query(User).filter(User.id == payload['id']).first()
+
+            if user_obj is None:
+                raise Exception('User not found')
+
+            print(user_obj.id)
+
+        return await func(Authorization=str(user_obj.id), *args, **kwargs)
 
     return wrapper
+
+
+def get_user_id_from_header(header: str):
+    with get_session() as session:
+        print('fff', header)
+        payload = jwt.decode(header, SECRET_KEY, algorithms=['HS256'])
+        user_obj = session.query(User).filter(User.id == payload['id']).first()
+        return(str(user_obj.id))
