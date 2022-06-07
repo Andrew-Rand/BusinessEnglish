@@ -1,12 +1,11 @@
 import json
-from functools import wraps
-from typing import Callable, Any
 
-from fastapi.routing import APIRoute, APIRouter
+from typing import Any
+
 from starlette.requests import Request
 from pydantic import ValidationError
 
-from src.basecore.std_response import Response
+from src.basecore.std_response import Response, create_response
 from starlette.responses import Response as error_response
 
 
@@ -41,4 +40,4 @@ async def catch_exceptions_middleware(request: Request, call_next):
         return await call_next(request)
     except Exception as e:
         print('Exception')
-        return error_response(content=json.dumps(Response(code=400, status='Bad request', message='Error', result=str(e)).dict(exclude_none=True)), status_code=400)
+        return create_response(code=400, status='Bad request', message='Error', result=str(e))

@@ -4,14 +4,13 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
-from src.basecore.error_handler import RouteErrorHandler
 from src.basecore.std_response import Response
 from src.db.db_config import get_session
 from src.user import api
 from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, ChangePasswordRequest
 from src.user.utils import login_required
 
-router = APIRouter(route_class=RouteErrorHandler)
+router = APIRouter()
 
 
 # CRUD for user
