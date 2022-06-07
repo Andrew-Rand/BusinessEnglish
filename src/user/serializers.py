@@ -43,10 +43,3 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
     new_password_repeated: str
 
-
-class Response(GenericModel):
-    # TODO: Move it to basecore response schema
-    code: str
-    status: str
-    message: str
-    result: Any

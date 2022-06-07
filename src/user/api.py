@@ -1,13 +1,10 @@
-from random import choice
-from typing import List, Dict
+from typing import Dict
 from uuid import UUID
 
 import jwt
 from sqlalchemy.orm import Session, Query
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.basecore.error_handler import error_handler
-from src.constants import ENCODE_FORMAT
 from src.user.constants import ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME, SECRET_KEY
 from src.user.models import User
 from src.user.serializers import UserSchema, UserLoginRequest

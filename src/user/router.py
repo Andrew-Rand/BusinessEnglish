@@ -4,14 +4,14 @@ from uuid import UUID
 from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
 
-from src.basecore.error_handler import error_handler
+from src.basecore.error_handler import RouteErrorHandler
+from src.basecore.std_response import Response
 from src.db.db_config import get_session
 from src.user import api
-from src.user.models import User
-from src.user.serializers import Response, UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, ChangePasswordRequest
-from src.user.utils import login_required, get_user_id_from_header
+from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, ChangePasswordRequest
+from src.user.utils import login_required
 
-router = APIRouter()
+router = APIRouter(route_class=RouteErrorHandler)
 
 
 # CRUD for user
@@ -55,6 +55,7 @@ async def change_password(
 
     return Response(code=201, status='Created', message='Success').dict(exclude_none=True)
 
+
 @router.post('/signup/')
 async def create_user(request: UserPostSchema, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     api.create_user(db_session=db_session, user=request.parameter)
@@ -62,6 +63,7 @@ async def create_user(request: UserPostSchema, db_session: Session = Depends(get
 
 
 @router.post('/login/')
+# @error_handler
 async def login(request: UserLoginRequest, db_session: Session = Depends(get_session)) -> Dict[str, Any]:
     print(request)
     response_data = api.login(db_session=db_session, user=request)

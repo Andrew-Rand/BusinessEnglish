@@ -4,9 +4,10 @@ from uuid import UUID
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 
+from src.basecore.std_response import Response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import TaskSchema, Response, RequestTask, CheckResponse
+from src.task.serializers import TaskSchema, RequestTask, CheckResponse
 
 router = APIRouter()
 

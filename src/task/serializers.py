@@ -27,13 +27,5 @@ class RequestTask(BaseModel):
     parameter: TaskSchema = Field(...)
 
 
-class Response(GenericModel):
-    # TODO: Move it to basecore response schema
-    code: str
-    status: str
-    message: str
-    result: Any
-
-
 class CheckResponse(BaseModel):
     answer: str
