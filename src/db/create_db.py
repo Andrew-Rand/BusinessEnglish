@@ -1,5 +1,6 @@
 from src.db.db_config import get_engine, get_session
 from src.task.models import Task, Base
+from src.user.models import Base
 
 
 Base.metadata.create_all(bind=get_engine())

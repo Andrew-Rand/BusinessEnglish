@@ -10,3 +10,5 @@ STATUSES: Dict[str, int] = {
     'I\'m a teapot': 418,
     'Internal Server Error': 500,
 }
+
+ENCODE_FORMAT = 'utf-8'
