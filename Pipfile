@@ -9,6 +9,8 @@ uvicorn = {extras = ["standart"], version = "*"}
 pydantic = "*"
 alembic = "*"
 psycopg2-binary = "*"
+werkzeug = "*"
+pyjwt = "*"
 
 [dev-packages]
 

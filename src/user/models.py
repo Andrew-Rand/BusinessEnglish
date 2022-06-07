@@ -13,9 +13,9 @@ class User(Base):
     __tablename__ = 'users'
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
-    username = Column(String(50))
-    email = Column(String(50))
-    password = Column(String(50))
+    username = Column(String(100))
+    email = Column(String(100), unique=True)
+    password = Column(String(200))
     is_active = Column(Boolean, default=True)
     is_admin = Column(Boolean, default=False)
     successed_tasks = Column(Integer, default=0)
@@ -31,10 +31,10 @@ class User(Base):
         validate_email(field=field, value=value)
         return value
 
-    @validates('password')
-    def validate_password(self, field, value):
-        validate_password(field=field, value=value)
-        return value
+    # @validates('password')
+    # def validate_password(self, field, value):
+    #     validate_password(field=field, value=value)
+    #     return value
 
     @validates('successed_tasks')
     def validate_successed_tasks(self, field, value):

@@ -28,6 +28,7 @@ class RequestTask(BaseModel):
 
 
 class Response(GenericModel):
+    # TODO: Move it to basecore response schema
     code: str
     status: str
     message: str
