@@ -12,6 +12,6 @@ class Response(GenericModel):
     result: Any
 
 
-def create_response(code: int, status: str, message: str, result: Any) -> Response:
+def create_response(code: int, status: str, message: str, result: Any = None) -> Response:
     content = json.dumps(Response(code=code, status=status, message=message, result=result).dict(exclude_none=True))
     return std_response(content=content, status_code=code)
