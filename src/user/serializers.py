@@ -24,8 +24,8 @@ class UserPostSchema(BaseModel):
 
 
 class UserUpdateSchema(BaseModel):
-    username: str
-    email: str
+    username: str = None
+    email: str = None
     is_admin: bool = False
 
 
@@ -43,10 +43,3 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
     new_password_repeated: str
 
-
-class Response(GenericModel):
-    # TODO: Move it to basecore response schema
-    code: str
-    status: str
-    message: str
-    result: Any

@@ -4,15 +4,14 @@ from sqlalchemy import Column, String, Boolean, Integer
 from sqlalchemy.dialects.postgresql import UUID, ARRAY
 from sqlalchemy.orm import validates
 
-from src.db.db_config import Base
+from src.basecore.models import BaseModel
 from src.user.validators import validate_name, validate_positive_number, validate_password, validate_email
 
 
-class User(Base):
+class User(BaseModel):
 
     __tablename__ = 'users'
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid4)
     username = Column(String(100))
     email = Column(String(100), unique=True)
     password = Column(String(200))
@@ -48,5 +47,17 @@ class User(Base):
 
     def __repr__(self):
         return f'User id: {self.id}'
+
+    def as_dict(self, fields=None):
+        data = super().as_dict(fields)
+        return {
+            "id": str(data.get("id")),
+            "username": data.get("username"),
+            "email": data.get("email"),
+            "is_active": data.get("is_active"),
+            "is_admin": data.get("is_admin"),
+            "successed_tasks": data.get("successed_tasks"),
+            "streak": data.get("streak")
+        }
 
 # TODO: Add achivemens for user
