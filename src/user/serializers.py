@@ -24,8 +24,8 @@ class UserPostSchema(BaseModel):
 
 
 class UserUpdateSchema(BaseModel):
-    username: str
-    email: str
+    username: str = None
+    email: str = None
     is_admin: bool = False
 
 
