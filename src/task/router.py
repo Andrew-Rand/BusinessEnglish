@@ -1,13 +1,16 @@
+import json
 from typing import Any, Dict
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
+from sqlalchemy.ext.serializer import dumps
+
 
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import TaskSchema, RequestTask, CheckResponse
+from src.task.serializers import TaskSchema, RequestTask, CheckResponse, AlchemyEncoder
 from starlette.responses import Response
 
 router = APIRouter()
@@ -19,7 +22,7 @@ router = APIRouter()
 @router.get('/')
 async def get_all_tasks(db_session: Session = Depends(get_session)) -> Response:
     task_list = api.get_task_list(db_session=db_session)
-    return create_response(code=200, status='Ok', message='Success', result=[obj.as_dict() for obj in task_list])
+    return create_response(code=200, status='Ok', message='Success', result=task_list)
 
 
 @router.post('/')
