@@ -48,16 +48,4 @@ class User(BaseModel):
     def __repr__(self):
         return f'User id: {self.id}'
 
-    def as_dict(self, fields=None):
-        data = super().as_dict(fields)
-        return {
-            "id": str(data.get("id")),
-            "username": data.get("username"),
-            "email": data.get("email"),
-            "is_active": data.get("is_active"),
-            "is_admin": data.get("is_admin"),
-            "successed_tasks": data.get("successed_tasks"),
-            "streak": data.get("streak")
-        }
-
 # TODO: Add achivemens for user

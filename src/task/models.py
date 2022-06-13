@@ -17,12 +17,3 @@ class Task(BaseModel):
 
     def __repr__(self):
         return f'Task id: {self.id}, type: {self.type}'
-
-    def as_dict(self, fields=None):
-        data = super().as_dict(fields)
-        return {
-            "id": str(data.get("id")),
-            "type": data.get("type"),
-            "question": data.get("question"),
-            "answer": data.get("answer")
-        }

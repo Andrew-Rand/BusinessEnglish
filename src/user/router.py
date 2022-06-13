@@ -24,7 +24,7 @@ async def get_all_users(
 
     # TODO: Add permission (Only for admin)
     user_list = api.get_user_list(db_session=db_session)
-    return create_response(code=200, status='Ok', message='Success', result=[obj.as_dict() for obj in user_list])
+    return create_response(code=200, status='Ok', message='Success', result=user_list)
 
 
 @router.get('/user/')
@@ -36,7 +36,7 @@ async def get_user_by_id(
 
     user_obj = api.get_user_by_id(db_session=db_session, user_id=authorization)
 
-    return create_response(code=200, status='Ok', message='Success', result=user_obj.as_dict())
+    return create_response(code=200, status='Ok', message='Success', result=user_obj)
 
 
 @router.put('/user/')
@@ -53,7 +53,7 @@ async def update_user(
         username=request.username,
         email=request.email)
 
-    return create_response(code=200, status='Created', message='Success', result=user_obj.as_dict())
+    return create_response(code=200, status='Created', message='Success', result=user_obj)
 
 
 @router.post('/change_password')
