@@ -1,5 +1,4 @@
 from typing import Dict
-from uuid import UUID
 
 import jwt
 from sqlalchemy.orm import Session, Query

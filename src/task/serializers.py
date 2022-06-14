@@ -1,10 +1,9 @@
 import json
 from enum import Enum
-from typing import List, Any
+from typing import List
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
 
 from sqlalchemy.ext.declarative import DeclarativeMeta
 

@@ -1,13 +1,8 @@
 from uuid import uuid4
 
-from datetime import datetime
-
-from sqlalchemy import Column, Integer, DateTime, Date
-
-from sqlalchemy import Column, String, Enum
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy import Column
+from sqlalchemy.dialects.postgresql import UUID
 from src.db.db_config import Base
-from src.task.serializers import TaskType
 
 
 class BaseModel(Base):

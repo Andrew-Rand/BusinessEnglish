@@ -1,13 +1,10 @@
-import json
-
 from typing import Any
 
 from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
 from pydantic import ValidationError
 
-from src.basecore.std_response import Response, create_response
-from starlette.responses import Response as error_response
+from src.basecore.std_response import create_response
 
 
 NOT_FOUND_ERROR_MESSAGE = "Requested object doesn't exist"

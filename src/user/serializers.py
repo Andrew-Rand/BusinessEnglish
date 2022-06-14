@@ -1,8 +1,6 @@
-from typing import Any
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
 
 
 class UserSchema(BaseModel):
@@ -42,4 +40,3 @@ class ChangePasswordRequest(BaseModel):
     password: str
     new_password: str
     new_password_repeated: str
-

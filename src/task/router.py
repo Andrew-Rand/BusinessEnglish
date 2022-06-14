@@ -1,16 +1,12 @@
-import json
-from typing import Any, Dict
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.serializer import dumps
-
 
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import TaskSchema, RequestTask, CheckResponse, AlchemyEncoder
+from src.task.serializers import RequestTask, CheckResponse
 from starlette.responses import Response
 
 router = APIRouter()

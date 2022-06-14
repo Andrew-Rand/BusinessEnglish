@@ -1,7 +1,5 @@
-from uuid import uuid4
-
 from sqlalchemy import Column, String, Enum
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.basecore.models import BaseModel
 from src.task.serializers import TaskType
