@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import RequestTask, CheckResponse
+from src.task.serializers import RequestTask, CheckResponse, TaskSchemaSerializer
 from starlette.responses import Response
 
 router = APIRouter()
@@ -17,8 +17,10 @@ router = APIRouter()
 # CRUD for task
 @router.get('/')
 async def get_all_tasks(db_session: Session = Depends(get_session)) -> Response:
+    serializer = TaskSchemaSerializer()
     task_list = api.get_task_list(db_session=db_session)
-    return create_response(code=200, status='Ok', message='Success', result=task_list)
+    result = serializer.dump(obj=task_list, many=True)
+    return create_response(code=200, status='Ok', message='Success', result=result)
 
 
 @router.post('/')
@@ -29,18 +31,22 @@ async def create_task(request: RequestTask, db_session: Session = Depends(get_se
 
 @router.get('/task/{task_id}/')
 async def get_task_by_id(task_id: UUID, db_session: Session = Depends(get_session)) -> Response:
+    serializer = TaskSchemaSerializer()
     task_obj = api.get_task_by_id(db_session=db_session, task_id=task_id)
-    return create_response(code=200, status='Ok', message='Success', result=task_obj)
+    result = serializer.dump(task_obj)
+    return create_response(code=200, status='Ok', message='Success', result=result)
 
 
 @router.put('/task/{task_id}/')
 async def update_task(task_id: UUID, request: RequestTask, db_session: Session = Depends(get_session)) -> Response:
+    serializer = TaskSchemaSerializer()
     task_obj = api.update_task(
         db_session=db_session,
         task_id=task_id,
         question=request.parameter.question,
         answer=request.parameter.answer)
-    return create_response(code=200, status='Created', message='Success', result=task_obj)
+    result = serializer.dump(task_obj)
+    return create_response(code=200, status='Created', message='Success', result=result)
 
 
 @router.delete('/task/{task_id}/')
@@ -52,8 +58,10 @@ async def delete_task(task_id: UUID, db_session: Session = Depends(get_session))
 # Check the task endpoints
 @router.get('/get_random/')
 async def get_random_task(db_session: Session = Depends(get_session)) -> Response:
+    serializer = TaskSchemaSerializer()
     task_obj = api.get_random_task(db_session=db_session)
-    return create_response(code=200, status='Ok', message='Success', result=task_obj)
+    result = serializer.dump(task_obj)
+    return create_response(code=200, status='Ok', message='Success', result=result)
 
 
 @router.post('/check_task/{task_id}/')

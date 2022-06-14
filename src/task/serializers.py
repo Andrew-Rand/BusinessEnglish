@@ -1,17 +1,12 @@
-import json
-from enum import Enum
 from typing import List
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
 
-from sqlalchemy.ext.declarative import DeclarativeMeta
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
 
-
-class TaskType(int, Enum):
-    russian_to_english = 1
-    english_to_russian = 2
-    join_phrase = 3
+from src.task.constants import TaskType
+from src.task.models import Task
 
 
 class TaskSchema(BaseModel):
@@ -33,25 +28,8 @@ class CheckResponse(BaseModel):
     answer: str
 
 
-class AlchemyEncoder(json.JSONEncoder):
-
-    SERVICE = {'metadata', 'Meta', "as_dict", "map_datetime_formats_to_return", "get_value", "registry"}
-
-    def default(self, obj):
-        if isinstance(obj.__class__, DeclarativeMeta):
-            # start with a sqlalchemy class
-            fields = {}
-            for field in [x for x in dir(obj) if not x.startswith('_') and x not in self.SERVICE]:
-                data = obj.__getattribute__(field)
-                try:
-                    json.dumps(data)
-                    fields[field] = data
-                except TypeError:
-                    if field == 'id':
-                        fields[field] = str(data)
-                    else:
-                        fields[field] = None
-            # finish with a json-encodable dict
-            return fields
-
-        return json.JSONEncoder.default(self, obj)
+class TaskSchemaSerializer(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Task
+        include_relationships = True
+        load_instance = True  # Optional: deserialize to model instances

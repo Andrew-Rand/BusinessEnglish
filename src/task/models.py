@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Enum
 from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.basecore.models import BaseModel
-from src.task.serializers import TaskType
+from src.task.constants import TaskType
 
 
 class Task(BaseModel):
