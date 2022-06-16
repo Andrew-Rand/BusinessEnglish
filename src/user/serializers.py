@@ -54,7 +54,5 @@ class UserSchemaSerializer(SQLAlchemySchema):
     id = auto_field()
     username = auto_field()
     email = auto_field()
-    is_active = auto_field()
-    is_admin = auto_field()
     successed_tasks = auto_field()
     streak = auto_field()

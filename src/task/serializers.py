@@ -4,6 +4,7 @@ from uuid import UUID, uuid4
 from pydantic import BaseModel, Field
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import Schema, fields
 
 from src.task.constants import TaskType
 from src.task.models import Task
@@ -31,5 +32,12 @@ class CheckResponse(BaseModel):
 class TaskSchemaSerializer(SQLAlchemyAutoSchema):
     class Meta:
         model = Task
-        include_relationships = True
+        # include_relationships = True
         load_instance = True  # Optional: deserialize to model instances
+
+
+class TaskSchemaMarshmellow(Schema):
+    id = fields.Boolean()
+    type = fields.Str()
+    question = fields.List(cls_or_instance=fields.Str)
+    answer = fields.List(cls_or_instance=fields.Str)

@@ -6,7 +6,7 @@ from sqlalchemy.orm import Session
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import RequestTask, CheckResponse, TaskSchemaSerializer
+from src.task.serializers import RequestTask, CheckResponse, TaskSchemaSerializer, TaskSchemaMarshmellow
 from starlette.responses import Response
 
 router = APIRouter()
@@ -17,7 +17,7 @@ router = APIRouter()
 # CRUD for task
 @router.get('/')
 async def get_all_tasks(db_session: Session = Depends(get_session)) -> Response:
-    serializer = TaskSchemaSerializer()
+    serializer = TaskSchemaMarshmellow()
     task_list = api.get_task_list(db_session=db_session)
     result = serializer.dump(obj=task_list, many=True)
     return create_response(code=200, status='Ok', message='Success', result=result)
