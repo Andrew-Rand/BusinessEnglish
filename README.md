@@ -9,3 +9,13 @@ Migrate with alembic inside the app docker container
 
 alembic upgrade head
 
+To create new auto migration, use command
+
+alembic revision --autogenerate -m "Added initial table"
+
+If you have an error like database not up to date, run before
+
+alembic stamp head
+
+
+
