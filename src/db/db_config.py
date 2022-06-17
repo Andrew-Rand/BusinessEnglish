@@ -5,7 +5,6 @@ from src.db.constants import user, passwd, host, port, db
 
 
 def get_engine():
-    print(port, user, host)
     return create_engine(f"postgresql://{user}:{passwd}@{host}:{port}/{db}")
 
 

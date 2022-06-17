@@ -1,0 +1,15 @@
+{
+    "tasks":
+        [
+            {
+                "question": ["Could you repeate please"],
+                "answer":["Повторите пожалуйста", "Можите ли вы повторить"],
+                "type": 2
+            },
+            {
+                "question": ["Повторите пожалуйста"],
+                "answer": ["Could you repeat please", "Repeat that please"],
+                "type": 1
+            }
+        ]
+}
