@@ -1,13 +1,10 @@
 import datetime
 from functools import wraps
-from typing import Callable, Any, Union
+from typing import Any, Union
 
-from fastapi import Header, Request
 import jwt
-from sqlalchemy.orm import Session
 
 from src.basecore.error_handler import ForbiddenError, NotFoundError
-from src.basecore.std_response import Response
 from src.db.db_config import get_session
 from src.user.constants import SECRET_KEY
 from src.user.models import User
@@ -53,4 +50,3 @@ def login_required(func: Any) -> Any:
         return await func(authorization=str(user_obj.id), *args, **kwargs)
 
     return wrapper
-

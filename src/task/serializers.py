@@ -1,15 +1,13 @@
-from enum import Enum
-from typing import List, Any
+from typing import List
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
 
+from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
+from marshmallow import Schema, fields
 
-class TaskType(int, Enum):
-    russian_to_english = 1
-    english_to_russian = 2
-    join_phrase = 3
+from src.task.constants import TaskType
+from src.task.models import Task
 
 
 class TaskSchema(BaseModel):
@@ -29,3 +27,17 @@ class RequestTask(BaseModel):
 
 class CheckResponse(BaseModel):
     answer: str
+
+
+class TaskSchemaSerializer(SQLAlchemyAutoSchema):
+    class Meta:
+        model = Task
+        # include_relationships = True
+        load_instance = True  # Optional: deserialize to model instances
+
+
+class TaskSchemaMarshmellow(Schema):
+    id = fields.Boolean()
+    type = fields.Str()
+    question = fields.List(cls_or_instance=fields.Str)
+    answer = fields.List(cls_or_instance=fields.Str)

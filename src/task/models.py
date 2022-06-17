@@ -1,10 +1,8 @@
-from uuid import uuid4
-
 from sqlalchemy import Column, String, Enum
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy.dialects.postgresql import ARRAY
 
 from src.basecore.models import BaseModel
-from src.task.serializers import TaskType
+from src.task.constants import TaskType
 
 
 class Task(BaseModel):
@@ -17,12 +15,3 @@ class Task(BaseModel):
 
     def __repr__(self):
         return f'Task id: {self.id}, type: {self.type}'
-
-    def as_dict(self, fields=None):
-        data = super().as_dict(fields)
-        return {
-            "id": str(data.get("id")),
-            "type": data.get("type"),
-            "question": data.get("question"),
-            "answer": data.get("answer")
-        }

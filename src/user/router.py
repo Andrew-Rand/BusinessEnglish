@@ -1,5 +1,4 @@
-from typing import Any, Dict, Union
-from uuid import UUID
+from typing import Union
 
 from fastapi import APIRouter, Depends, Header
 from sqlalchemy.orm import Session
@@ -8,7 +7,8 @@ from starlette.responses import Response
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.user import api
-from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, ChangePasswordRequest
+from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, \
+    ChangePasswordRequest, UserSchemaSerializer
 from src.user.utils import login_required
 
 router = APIRouter()
@@ -23,8 +23,11 @@ async def get_all_users(
 ) -> Response:
 
     # TODO: Add permission (Only for admin)
+    serializer = UserSchemaSerializer()
     user_list = api.get_user_list(db_session=db_session)
-    return create_response(code=200, status='Ok', message='Success', result=[obj.as_dict() for obj in user_list])
+    result = serializer.dump(obj=user_list, many=True)
+
+    return create_response(code=200, status='Ok', message='Success', result=result)
 
 
 @router.get('/user/')
@@ -34,9 +37,11 @@ async def get_user_by_id(
         db_session: Session = Depends(get_session)
 ) -> Response:
 
+    serializer = UserSchemaSerializer()
     user_obj = api.get_user_by_id(db_session=db_session, user_id=authorization)
+    result = serializer.dump(user_obj)
 
-    return create_response(code=200, status='Ok', message='Success', result=user_obj.as_dict())
+    return create_response(code=200, status='Ok', message='Success', result=result)
 
 
 @router.put('/user/')
@@ -47,13 +52,14 @@ async def update_user(
         db_session: Session = Depends(get_session)
 ) -> Response:
 
+    serializer = UserSchemaSerializer()
     user_obj = api.update_user(
         db_session=db_session,
         user_id=authorization,
         username=request.username,
         email=request.email)
-
-    return create_response(code=200, status='Created', message='Success', result=user_obj.as_dict())
+    result = serializer.dump(user_obj)
+    return create_response(code=200, status='Created', message='Success', result=result)
 
 
 @router.post('/change_password')

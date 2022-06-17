@@ -1,8 +1,9 @@
-from typing import Any
 from uuid import UUID, uuid4
-
 from pydantic import BaseModel, Field
-from pydantic.generics import GenericModel
+
+from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
+
+from src.user.models import User
 
 
 class UserSchema(BaseModel):
@@ -43,3 +44,15 @@ class ChangePasswordRequest(BaseModel):
     new_password: str
     new_password_repeated: str
 
+
+class UserSchemaSerializer(SQLAlchemySchema):
+
+    class Meta:
+        model = User
+        load_instance = True  # Optional: deserialize to model instances
+
+    id = auto_field()
+    username = auto_field()
+    email = auto_field()
+    successed_tasks = auto_field()
+    streak = auto_field()
