@@ -5,7 +5,7 @@ from logging.config import fileConfig
 from alembic import context
 
 from src.db.constants import user, passwd, host, port, db
-from src.basecore.models import Base
+from src.basecore import models
 from src.db.db_config import get_engine
 from src.task.models import Task
 from src.user.models import User
@@ -23,7 +23,7 @@ config.set_main_option("sqlalchemy.url", f"postgresql://{user}:{passwd}@{host}:{
 # This line sets up loggers basically.
 fileConfig(config.config_file_name)
 
-target_metadata = [Base.metadata]
+target_metadata = [models.base.metadata]
 
 
 def run_migrations_offline():
