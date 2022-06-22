@@ -64,7 +64,7 @@ async def update_user(
     return create_response(code=200, status='Created', message='Success', result=result)
 
 
-@router.post('/change_password')
+@router.post('/change_password/')
 @login_required
 async def change_password(
         request: ChangePasswordRequest,
@@ -95,7 +95,6 @@ async def login(request: UserLoginRequest, db_session: Session = Depends(get_ses
 
 
 @router.post('/refresh/')
-@login_required
 async def refresh_token(
         request: RefreshTokenRequest,
         authorization: Union[str, None] = Header(default=None, convert_underscores=False),

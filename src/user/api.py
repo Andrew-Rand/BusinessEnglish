@@ -4,7 +4,7 @@ import jwt
 from sqlalchemy.orm import Session, Query
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from src.basecore.error_handler import BadRequestError, NotFoundError, NOT_FOUND_ERROR_MESSAGE
+from src.basecore.error_handler import BadRequestError, NotFoundError, NOT_FOUND_ERROR_MESSAGE, ForbiddenError
 from src.user.constants import ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME, SECRET_KEY
 from src.user.models import User
 from src.user.serializers import UserSchema, UserLoginRequest
@@ -78,6 +78,7 @@ def change_password(
 
 
 def login(db_session: Session, user: UserLoginRequest) -> Dict[str, str]:
+    print(user.email)
     user_obj = db_session.query(User).filter(User.email == user.email).first()
 
     if not user_obj:
@@ -103,10 +104,11 @@ def refresh_token(db_session: Session, refresh_token: str) -> Dict[str, str]:
     try:
         payload = jwt.decode(refresh_token, SECRET_KEY, algorithms=['HS256'])
     except jwt.ExpiredSignatureError:
-        raise Exception('expired refresh token, please login again.')
-    except jwt.DecodeError:
-        raise Exception('token data is incorrect')
+        raise ForbiddenError('Refresh token is expired, go to the refresh endpoint')
+    except jwt.InvalidTokenError:
+        raise ForbiddenError('Invalid token. Please log in again')
 
+    print('AAAAAAAAAAA')
     user_obj = db_session.query(User).filter(User.id == payload['id']).first()
 
     if not user_obj:

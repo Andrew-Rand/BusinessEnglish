@@ -1,7 +1,6 @@
 import json
 import unittest
 from uuid import uuid4
-from typing import List
 
 from fastapi.testclient import TestClient
 
@@ -122,7 +121,7 @@ class TestTaskAPIOk(TestTaskBase):
 
     def test_task_get_random(self):
 
-        response = self.CLIENT.get(f'/task/get_random/')
+        response = self.CLIENT.get('/task/get_random/')
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -135,7 +134,7 @@ class TestTaskAPIOk(TestTaskBase):
             session.query(Task).delete()
             session.commit()
 
-        response = self.CLIENT.get(f'/task/get_random/')
+        response = self.CLIENT.get('/task/get_random/')
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
