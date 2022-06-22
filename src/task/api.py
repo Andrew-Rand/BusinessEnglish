@@ -1,5 +1,5 @@
 from random import choice
-from typing import List
+from typing import List, Union
 from uuid import UUID
 
 from sqlalchemy.orm import Session, Query
@@ -58,11 +58,12 @@ def update_task(db_session: Session, task_id: UUID, question: List[str], answer:
     return task_obj
 
 
-def get_random_task(db_session: Session) -> Query:
+def get_random_task(db_session: Session) -> Union[Query, None]:
 
     task_qs = db_session.query(Task).all()
-
-    return choice(task_qs)
+    if task_qs:
+        return choice(task_qs)
+    return None
 
 
 def check_task(db_session: Session, task_id: UUID, answer: str) -> bool:
@@ -72,7 +73,7 @@ def check_task(db_session: Session, task_id: UUID, answer: str) -> bool:
     if not task_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    if answer.lower() in task_obj.answer:
+    if answer.lower() in [answer.lower() for answer in task_obj.answer]:
         return True
     else:
         return False

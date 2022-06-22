@@ -26,5 +26,3 @@ app.middleware('http')(catch_exceptions_middleware)
 
 app.include_router(router=task_router, prefix='/task', tags=['task'])
 app.include_router(router=user_router, prefix='/user', tags=['user'])
-
-# TODO: Add error handler

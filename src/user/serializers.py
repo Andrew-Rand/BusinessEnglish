@@ -20,10 +20,6 @@ class UserSchema(BaseModel):
         orm_mode = True
 
 
-class UserPostSchema(BaseModel):
-    parameter: UserSchema = Field(...)
-
-
 class UserUpdateSchema(BaseModel):
     username: str = None
     email: str = None

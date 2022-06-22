@@ -33,7 +33,7 @@ class DBTestBase(unittest.TestCase):
         )
 
 
-class TestDBConnection(DBTestBase):
+class TestDBConnectionOk(DBTestBase):
 
     def test_get_engine(self):
 
@@ -46,3 +46,4 @@ class TestDBConnection(DBTestBase):
         db_session = get_session()
 
         self.assertIsInstance(db_session, Session)
+

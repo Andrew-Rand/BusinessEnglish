@@ -7,8 +7,8 @@ from starlette.responses import Response
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.user import api
-from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, \
-    ChangePasswordRequest, UserSchemaSerializer
+from src.user.serializers import UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, \
+    ChangePasswordRequest, UserSchemaSerializer, UserSchema
 from src.user.utils import login_required
 
 router = APIRouter()
@@ -81,8 +81,8 @@ async def change_password(
 
 
 @router.post('/signup/')
-async def create_user(request: UserPostSchema, db_session: Session = Depends(get_session)) -> Response:
-    api.create_user(db_session=db_session, user=request.parameter)
+async def create_user(request: UserSchema, db_session: Session = Depends(get_session)) -> Response:
+    api.create_user(db_session=db_session, user=request)
     return create_response(code=201, status='Created', message='Success')
 
 
