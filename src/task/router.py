@@ -12,7 +12,8 @@ from starlette.responses import Response
 
 router = APIRouter()
 
-# TODO: Create serializer and rm as_dict usage
+
+# TODO: Rewrite with request serializers and handle validation errors
 
 
 # CRUD for task

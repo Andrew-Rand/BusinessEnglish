@@ -14,6 +14,8 @@ from src.user.utils import login_required
 router = APIRouter()
 
 
+# TODO: Rewrite with request serializers and handle validation errors
+
 # CRUD for user
 @router.get('/')
 @login_required

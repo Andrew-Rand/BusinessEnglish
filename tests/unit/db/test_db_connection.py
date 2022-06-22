@@ -5,7 +5,7 @@ import unittest
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import Session
 
-from src.db.db_config import get_engine, get_session
+from src.db.db_config import get_session
 
 
 class DBTestBase(unittest.TestCase):
@@ -35,15 +35,8 @@ class DBTestBase(unittest.TestCase):
 
 class TestDBConnectionOk(DBTestBase):
 
-    def test_get_engine(self):
-
-        engine = get_engine()
-
-        self.assertEqual(str(engine.url), self.engine.url)
-
     def test_get_session(self):
 
         db_session = get_session()
 
         self.assertIsInstance(db_session, Session)
-
