@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 
 import jwt
 from sqlalchemy.orm import Session, Query
@@ -7,7 +7,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from src.basecore.error_handler import BadRequestError, NotFoundError, NOT_FOUND_ERROR_MESSAGE, ForbiddenError
 from src.user.constants import ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME, SECRET_KEY
 from src.user.models import User
-from src.user.serializers import UserSchema, UserLoginRequest, UserUpdateSchema
 from src.user.utils import create_token
 from src.user.validators import validate_password
 
@@ -26,11 +25,11 @@ def get_user_by_id(db_session: Session, user_id: str) -> Query:
     return user_obj
 
 
-def create_user(db_session: Session, user: UserSchema) -> User:
+def create_user(db_session: Session, data: Dict[str, Any]) -> User:
 
-    validate_password(field='password', value=user.password)
-    hashed_password = generate_password_hash(password=user.password, method='sha256')
-    user_obj = User(username=user.username, email=user.email, password=hashed_password)
+    validate_password(field='password', value=data['password'])
+    hashed_password = generate_password_hash(password=data['password'], method='sha256')
+    user_obj = User(username=data['username'], email=data['email'], password=hashed_password)
     db_session.add(user_obj)
     db_session.commit()
     db_session.refresh(user_obj)
@@ -38,17 +37,18 @@ def create_user(db_session: Session, user: UserSchema) -> User:
     return user_obj
 
 
-def update_user(db_session: Session, user_id: str, update_data: UserUpdateSchema) -> User:
+def update_user(db_session: Session, user_id: str, data: Dict[str, Any]) -> User:
 
     user_obj = get_user_by_id(db_session=db_session, user_id=user_id)
 
     if not user_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    user_obj.username = update_data.username if update_data.username else user_obj.username
-    user_obj.email = update_data.email if update_data.email else user_obj.email
-    user_obj.successed_tasks = update_data.successed_tasks if update_data.successed_tasks else user_obj.successed_tasks
-    user_obj.streak = update_data.streak if update_data.streak else user_obj.streak
+    user_obj.username = data['username'] if data.get('username') else user_obj.username
+    user_obj.email = data['email'] if data.get('email') else user_obj.email
+    user_obj.successed_tasks = data['successed_tasks'] if data.get('successed_tasks') else user_obj.successed_tasks
+    user_obj.streak = data['streak'] if data.get('streak') else user_obj.streak
+    user_obj.is_admin = data['is_admin'] if data.get('is_admin') else user_obj.is_admin
     db_session.commit()
     db_session.refresh(user_obj)
 
@@ -57,14 +57,17 @@ def update_user(db_session: Session, user_id: str, update_data: UserUpdateSchema
 
 def change_password(
         db_session: Session,
-        user_id: str, password: str, new_password: str, new_password_repeated: str,
-        *args, **kwargs
+        user_id: str, data: Dict[str, Any]
 ):
 
     user_obj = get_user_by_id(db_session=db_session, user_id=user_id)
 
     if not user_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
+
+    password = data['password']
+    new_password = data['new_password']
+    new_password_repeated = data['new_password_repeated']
 
     if not check_password_hash(user_obj.password, password):
         raise Exception('Incorrect password')
@@ -78,14 +81,14 @@ def change_password(
     db_session.refresh(user_obj)
 
 
-def login(db_session: Session, user: UserLoginRequest) -> Dict[str, str]:
-    print(user.email)
-    user_obj = db_session.query(User).filter(User.email == user.email).first()
+def login(db_session: Session, data: Dict[str, Any]) -> Dict[str, str]:
+
+    user_obj = db_session.query(User).filter(User.email == data['email']).first()
 
     if not user_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    if not check_password_hash(user_obj.password, user.password):
+    if not check_password_hash(user_obj.password, data['password']):
         raise BadRequestError('Incorrect paassword')
 
     user_id = str(user_obj.id)

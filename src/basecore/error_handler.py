@@ -1,8 +1,8 @@
 from typing import Any
 
+from marshmallow import ValidationError
 from sqlalchemy.exc import IntegrityError
 from starlette.requests import Request
-from pydantic import ValidationError
 
 from src.basecore.std_response import create_response
 

@@ -256,8 +256,10 @@ class TestUserAPIBad(TestUserBase):
     def test_user_signup_if_empty_data(self):
 
         response = self.CLIENT.post('/user/signup/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
     def test_user_signup_if_incorrect_request_values(self):
 
@@ -277,7 +279,7 @@ class TestUserAPIBad(TestUserBase):
 
     def test_user_login_if_wrong_creds(self):
 
-        response = self.CLIENT.post('/user/login/', json=self.USER_SIGNUP_DATA)
+        response = self.CLIENT.post('/user/login/', json={"email": 'wrong@gmail.com', "password": "wrong"})
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
@@ -286,14 +288,18 @@ class TestUserAPIBad(TestUserBase):
     def test_user_login_if_empty_request_data(self):
 
         response = self.CLIENT.post('/user/login/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
     def test_user_refresh_if_empty_request_data(self):
 
         response = self.CLIENT.post('/user/refresh/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
     def test_user_refresh_if_incorrect_token(self):
         response = self.CLIENT.post('/user/refresh/', json={"refresh_token": "token"})
