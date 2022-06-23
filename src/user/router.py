@@ -21,7 +21,7 @@ router = APIRouter()
 @login_required
 async def get_all_users(
         authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session)
+        db_session: Session = Depends(get_session),
 ) -> Response:
 
     # TODO: Add permission (Only for admin)
@@ -58,8 +58,8 @@ async def update_user(
     user_obj = api.update_user(
         db_session=db_session,
         user_id=authorization,
-        username=request.username,
-        email=request.email)
+        update_data=request
+    )
     result = serializer.dump(user_obj)
     return create_response(code=200, status='Created', message='Success', result=result)
 
@@ -97,7 +97,6 @@ async def login(request: UserLoginRequest, db_session: Session = Depends(get_ses
 @router.post('/refresh/')
 async def refresh_token(
         request: RefreshTokenRequest,
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
         db_session: Session = Depends(get_session)
 ) -> Response:
 

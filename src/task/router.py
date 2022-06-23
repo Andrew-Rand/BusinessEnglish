@@ -1,6 +1,8 @@
+from typing import Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi import Header
 from sqlalchemy.orm import Session
 
 from src.basecore.std_response import create_response
@@ -9,6 +11,8 @@ from src.task import api
 from src.task.serializers import CheckResponse, TaskSchemaSerializer, TaskSchemaMarshmellow, TaskSchema, \
     TaskSchemaUpdate
 from starlette.responses import Response
+
+from src.user.utils import login_required
 
 router = APIRouter()
 
@@ -67,8 +71,14 @@ async def get_random_task(db_session: Session = Depends(get_session)) -> Respons
 
 
 @router.post('/check_task/{task_id}/')
-async def check_task(task_id: UUID, request: CheckResponse, db_session: Session = Depends(get_session)) -> Response:
-    if api.check_task(db_session=db_session, task_id=task_id, answer=request.answer):
+@login_required
+async def check_task(
+        task_id: UUID,
+        request: CheckResponse,
+        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
+        db_session: Session = Depends(get_session)
+) -> Response:
+    if api.check_task(db_session=db_session, task_id=task_id, answer=request.answer, user_id=authorization):
         return create_response(code=200, status='Ok', message='Success')
     else:
         return create_response(code=200, status='Wrong answer', message='Try again')

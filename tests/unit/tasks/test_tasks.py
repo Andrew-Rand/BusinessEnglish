@@ -3,17 +3,21 @@ import unittest
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from werkzeug.security import generate_password_hash
 
 from src.basecore.error_handler import NOT_FOUND_ERROR_MESSAGE
 from src.db.db_config import get_session
 from src.main import app
 from src.task.models import Task
+from src.user.models import User
+from src.user.utils import create_token
 
 
 class TestTaskBase(unittest.TestCase):
     # Expected attributes:
 
     TASK_ID = 0
+    USER_ID = 0
     CLIENT = TestClient(app)
     TASK_POST_DATA = {
         "question": ["Could you repeate please"],
@@ -46,12 +50,23 @@ class TestTaskBase(unittest.TestCase):
             session.refresh(task_obj)
             self.TASK_ID = str(task_obj.id)
 
+            user_obj = User(
+                username='Andrew',
+                email='andr@gmail.com',
+                password=generate_password_hash(password='Abc123%%%', method='sha256')
+            )
+            session.add(user_obj)
+            session.commit()
+            session.refresh(user_obj)
+            self.USER_ID = str(user_obj.id)
+
     def tearDown(self):
         """Run after each tests in this class"""
 
         # rm all test data from db
         with get_session() as session:
             session.query(Task).delete()
+            session.query(User).delete()
             session.commit()
 
 
@@ -143,7 +158,8 @@ class TestTaskAPIOk(TestTaskBase):
 
     def test_task_check(self):
 
-        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json=self.TASK_CHECK_DATA)
+        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json=self.TASK_CHECK_DATA, headers={
+            'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
         result = json.loads(response.content)
         print(self.TASK_CHECK_DATA)
 
@@ -152,7 +168,8 @@ class TestTaskAPIOk(TestTaskBase):
 
     def test_task_check_if_wrong_answer(self):
 
-        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json={'answer': 'wrong'})
+        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json={'answer': 'wrong'}, headers={
+            'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 200)
@@ -203,9 +220,18 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
+    def test_task_check_if_not_authorized(self):
+
+        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json=self.TASK_CHECK_DATA)
+        result = json.loads(response.content)
+
+        self.assertEqual(response.status_code, 403)
+        self.assertIn('Token is missing', result['message'])
+
     def test_task_check_if_doesnt_exist(self):
 
-        response = self.CLIENT.post(f'/task/check_task/{uuid4()}/', json=self.TASK_CHECK_DATA)
+        response = self.CLIENT.post(f'/task/check_task/{uuid4()}/', json=self.TASK_CHECK_DATA, headers={
+            'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
@@ -213,6 +239,7 @@ class TestTaskAPIBad(TestTaskBase):
 
     def test_task_check_if_empty_answer(self):
 
-        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/')
+        response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', headers={
+            'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
 
         self.assertEqual(response.status_code, 422)

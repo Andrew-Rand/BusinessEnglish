@@ -7,13 +7,12 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from src.basecore.error_handler import BadRequestError, NotFoundError, NOT_FOUND_ERROR_MESSAGE, ForbiddenError
 from src.user.constants import ACCESS_TOKEN_LIFETIME, REFRESH_TOKEN_LIFETIME, SECRET_KEY
 from src.user.models import User
-from src.user.serializers import UserSchema, UserLoginRequest
+from src.user.serializers import UserSchema, UserLoginRequest, UserUpdateSchema
 from src.user.utils import create_token
 from src.user.validators import validate_password
 
 
 def get_user_list(db_session: Session, skip: int = 0, limit: int = 100) -> Query:
-
     return db_session.query(User).offset(skip).limit(limit).all()
 
 
@@ -39,15 +38,17 @@ def create_user(db_session: Session, user: UserSchema) -> User:
     return user_obj
 
 
-def update_user(db_session: Session, user_id: str, username: str, email: str) -> User:
+def update_user(db_session: Session, user_id: str, update_data: UserUpdateSchema) -> User:
 
     user_obj = get_user_by_id(db_session=db_session, user_id=user_id)
 
     if not user_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    user_obj.username = username if username else user_obj.username
-    user_obj.email = email if email else user_obj.email
+    user_obj.username = update_data.username if update_data.username else user_obj.username
+    user_obj.email = update_data.email if update_data.email else user_obj.email
+    user_obj.successed_tasks = update_data.successed_tasks if update_data.successed_tasks else user_obj.successed_tasks
+    user_obj.streak = update_data.streak if update_data.streak else user_obj.streak
     db_session.commit()
     db_session.refresh(user_obj)
 
@@ -108,7 +109,6 @@ def refresh_token(db_session: Session, refresh_token: str) -> Dict[str, str]:
     except jwt.InvalidTokenError:
         raise ForbiddenError('Invalid token. Please log in again')
 
-    print('AAAAAAAAAAA')
     user_obj = db_session.query(User).filter(User.id == payload['id']).first()
 
     if not user_obj:
