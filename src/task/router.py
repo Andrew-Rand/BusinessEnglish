@@ -1,8 +1,6 @@
-from typing import Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, Request
-from fastapi import Header
 from sqlalchemy.orm import Session
 
 from src.basecore.std_response import create_response
@@ -95,14 +93,14 @@ async def get_random_task(db_session: Session = Depends(get_session)) -> Respons
 async def check_task(
         task_id: UUID,
         request: Request,
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
+        user_id: str = None,
         db_session: Session = Depends(get_session)
 ) -> Response:
 
     request_serializer = TaskCheckSerializer()
     serialized_data = request_serializer.load(await request.json())
 
-    if api.check_task(db_session=db_session, task_id=task_id, answer=serialized_data['answer'], user_id=authorization):
+    if api.check_task(db_session=db_session, task_id=task_id, answer=serialized_data['answer'], user_id=user_id):
         return create_response(code=200, status='Ok', message='Success')
     else:
         return create_response(code=200, status='Wrong answer', message='Try again')

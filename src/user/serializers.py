@@ -7,7 +7,7 @@ from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 from src.user.models import User
 
 
-#TODO: Add validators to serializers
+# TODO: Add validators to serializers
 
 class UserSchemaSerializer(SQLAlchemySchema):
 

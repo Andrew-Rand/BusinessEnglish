@@ -1,6 +1,4 @@
-from typing import Union
-
-from fastapi import APIRouter, Depends, Header, Request
+from fastapi import APIRouter, Depends, Request
 from sqlalchemy.orm import Session
 from starlette.responses import Response
 
@@ -20,10 +18,7 @@ router = APIRouter()
 # CRUD for user
 @router.get('/')
 @login_required
-async def get_all_users(
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session),
-) -> Response:
+async def get_all_users(request: Request, user_id: str = None, db_session: Session = Depends(get_session)) -> Response:
 
     # TODO: Add permission (Only for admin)
     response_serializer = UserSchemaSerializer()
@@ -36,14 +31,11 @@ async def get_all_users(
 
 @router.get('/user/')
 @login_required
-async def get_user_by_id(
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session)
-) -> Response:
+async def get_user_by_id(request: Request, user_id: str = None, db_session: Session = Depends(get_session)) -> Response:
 
     response_serializer = UserSchemaSerializer()
 
-    user_obj = api.get_user_by_id(db_session=db_session, user_id=authorization)
+    user_obj = api.get_user_by_id(db_session=db_session, user_id=user_id)
     result = response_serializer.dump(user_obj)
 
     return create_response(code=200, status='Ok', message='Success', result=result)
@@ -51,11 +43,7 @@ async def get_user_by_id(
 
 @router.put('/user/')
 @login_required
-async def update_user(
-        request: Request,
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session)
-) -> Response:
+async def update_user(request: Request, user_id: str = None, db_session: Session = Depends(get_session)) -> Response:
 
     request_serializer = UserUpdateSerializer()
     response_serializer = UserSchemaSerializer()
@@ -63,7 +51,7 @@ async def update_user(
 
     user_obj = api.update_user(
         db_session=db_session,
-        user_id=authorization,
+        user_id=user_id,
         data=serialized_data
     )
     result = response_serializer.dump(user_obj)
@@ -75,8 +63,8 @@ async def update_user(
 @login_required
 async def change_password(
         request: Request,
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session),
+        user_id: str = None,
+        db_session: Session = Depends(get_session)
 ) -> Response:
 
     request_serializer = UserChangePasswordSerializer()
@@ -84,7 +72,7 @@ async def change_password(
 
     api.change_password(
         db_session=db_session,
-        user_id=authorization,
+        user_id=user_id,
         data=serialized_data
     )
 
@@ -114,10 +102,7 @@ async def login(request: Request, db_session: Session = Depends(get_session)) ->
 
 
 @router.post('/refresh/')
-async def refresh_token(
-        request: Request,
-        db_session: Session = Depends(get_session)
-) -> Response:
+async def refresh_token(request: Request, db_session: Session = Depends(get_session)) -> Response:
 
     request_serializer = UserRefreshTokenSerializer()
     serialized_data = request_serializer.load(await request.json())
