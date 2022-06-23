@@ -10,10 +10,11 @@ from src.user.models import User
 # TODO: Add validators to serializers
 
 class UserSchemaSerializer(SQLAlchemySchema):
-
+    """You can use only UserSerializer, but auto schema is pretty convenient for response serializer"""
     class Meta:
         model = User
-        load_instance = True  # Optional: deserialize to model instances
+        # include_relationships = True  # uncomment the string if you need to serialize related tables
+        # load_instance = True  # uncomment the string if you need to use the class as request serializer
 
     id = auto_field()
     username = auto_field()

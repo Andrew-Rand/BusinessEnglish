@@ -7,11 +7,11 @@ from src.task.models import Task
 
 
 class TaskSchemaSerializer(SQLAlchemyAutoSchema):
-    # Only for testing marshmellow-sqlalchemy autoschema, you can use only TaskSerializer
+    """You can use only TaskSerializer, but auto schema is pretty convenient for response serializer"""
     class Meta:
         model = Task
-        # include_relationships = True
-        load_instance = True  # Optional: deserialize to model instances
+        # include_relationships = True  # uncomment the string if you need to serialize related tables
+        # load_instance = True  # uncomment the string if you need to use the class as request serializer
 
 
 class TaskSerializer(Schema):
