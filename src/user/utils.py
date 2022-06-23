@@ -25,18 +25,13 @@ def login_required(func: Any) -> Any:
     @wraps(func)
     async def wrapper(authorization: Union[str, None] = None, *args: Any, **kwargs: Any) -> Any:
         # TODO: Move strings messages to constants
-        print(
-            authorization
-        )
         if not authorization:
             raise ForbiddenError('Token is missing')
         try:
             payload = jwt.decode(authorization, SECRET_KEY, algorithms=['HS256'])
-            print('aaa', payload)
         except jwt.ExpiredSignatureError:
             raise ForbiddenError('Access token is expired, go to the refresh endpoint')
-        except jwt.InvalidTokenError as e:
-            print(e)
+        except jwt.InvalidTokenError:
             raise ForbiddenError('Invalid token. Please log in again')
 
         with get_session() as session:
@@ -44,8 +39,6 @@ def login_required(func: Any) -> Any:
 
             if user_obj is None:
                 raise NotFoundError('User is not found')
-
-            print(user_obj.id)
 
         return await func(authorization=str(user_obj.id), *args, **kwargs)
 

@@ -12,6 +12,7 @@ psycopg2-binary = "==2.9.3"
 werkzeug = "==2.1.2"
 pyjwt = "==2.1.0"
 marshmallow-sqlalchemy = "*"
+requests = "*"
 
 [dev-packages]
 

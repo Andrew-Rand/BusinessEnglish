@@ -1,5 +1,5 @@
 from uuid import UUID, uuid4
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from marshmallow_sqlalchemy import SQLAlchemySchema, auto_field
 
@@ -20,14 +20,12 @@ class UserSchema(BaseModel):
         orm_mode = True
 
 
-class UserPostSchema(BaseModel):
-    parameter: UserSchema = Field(...)
-
-
 class UserUpdateSchema(BaseModel):
     username: str = None
     email: str = None
-    is_admin: bool = False
+    streak: int = None
+    successed_tasks: int = None
+    is_admin: bool = None
 
 
 class UserLoginRequest(BaseModel):

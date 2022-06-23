@@ -21,8 +21,12 @@ class TaskSchema(BaseModel):
         orm_mode = True
 
 
-class RequestTask(BaseModel):
-    parameter: TaskSchema = Field(...)
+class TaskSchemaUpdate(BaseModel):
+    question: List[str]
+    answer: List[str]
+
+    class Config:
+        orm_mode = True
 
 
 class CheckResponse(BaseModel):
@@ -37,7 +41,7 @@ class TaskSchemaSerializer(SQLAlchemyAutoSchema):
 
 
 class TaskSchemaMarshmellow(Schema):
-    id = fields.Boolean()
+    id = fields.UUID()
     type = fields.Str()
     question = fields.List(cls_or_instance=fields.Str)
     answer = fields.List(cls_or_instance=fields.Str)

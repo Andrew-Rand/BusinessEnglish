@@ -1,17 +1,23 @@
+from typing import Union
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from fastapi import Header
 from sqlalchemy.orm import Session
 
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.task import api
-from src.task.serializers import RequestTask, CheckResponse, TaskSchemaSerializer, TaskSchemaMarshmellow
+from src.task.serializers import CheckResponse, TaskSchemaSerializer, TaskSchemaMarshmellow, TaskSchema, \
+    TaskSchemaUpdate
 from starlette.responses import Response
+
+from src.user.utils import login_required
 
 router = APIRouter()
 
-# TODO: Create serializer and rm as_dict usage
+
+# TODO: Rewrite with request serializers and handle validation errors
 
 
 # CRUD for task
@@ -24,8 +30,8 @@ async def get_all_tasks(db_session: Session = Depends(get_session)) -> Response:
 
 
 @router.post('/')
-async def create_task(request: RequestTask, db_session: Session = Depends(get_session)) -> Response:
-    api.create_task(db_session=db_session, task=request.parameter)
+async def create_task(request: TaskSchema, db_session: Session = Depends(get_session)) -> Response:
+    api.create_task(db_session=db_session, task=request)
     return create_response(code=201, status='Created', message='Success')
 
 
@@ -38,13 +44,13 @@ async def get_task_by_id(task_id: UUID, db_session: Session = Depends(get_sessio
 
 
 @router.put('/task/{task_id}/')
-async def update_task(task_id: UUID, request: RequestTask, db_session: Session = Depends(get_session)) -> Response:
+async def update_task(task_id: UUID, request: TaskSchemaUpdate, db_session: Session = Depends(get_session)) -> Response:
     serializer = TaskSchemaSerializer()
     task_obj = api.update_task(
         db_session=db_session,
         task_id=task_id,
-        question=request.parameter.question,
-        answer=request.parameter.answer)
+        question=request.question,
+        answer=request.answer)
     result = serializer.dump(task_obj)
     return create_response(code=200, status='Created', message='Success', result=result)
 
@@ -65,8 +71,14 @@ async def get_random_task(db_session: Session = Depends(get_session)) -> Respons
 
 
 @router.post('/check_task/{task_id}/')
-async def check_task(task_id: UUID, request: CheckResponse, db_session: Session = Depends(get_session)) -> Response:
-    if api.check_task(db_session=db_session, task_id=task_id, answer=request.answer):
+@login_required
+async def check_task(
+        task_id: UUID,
+        request: CheckResponse,
+        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
+        db_session: Session = Depends(get_session)
+) -> Response:
+    if api.check_task(db_session=db_session, task_id=task_id, answer=request.answer, user_id=authorization):
         return create_response(code=200, status='Ok', message='Success')
     else:
         return create_response(code=200, status='Wrong answer', message='Try again')

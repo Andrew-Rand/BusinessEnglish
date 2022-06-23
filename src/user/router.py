@@ -7,19 +7,21 @@ from starlette.responses import Response
 from src.basecore.std_response import create_response
 from src.db.db_config import get_session
 from src.user import api
-from src.user.serializers import UserPostSchema, UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, \
-    ChangePasswordRequest, UserSchemaSerializer
+from src.user.serializers import UserLoginRequest, RefreshTokenRequest, UserUpdateSchema, \
+    ChangePasswordRequest, UserSchemaSerializer, UserSchema
 from src.user.utils import login_required
 
 router = APIRouter()
 
+
+# TODO: Rewrite with request serializers and handle validation errors
 
 # CRUD for user
 @router.get('/')
 @login_required
 async def get_all_users(
         authorization: Union[str, None] = Header(default=None, convert_underscores=False),
-        db_session: Session = Depends(get_session)
+        db_session: Session = Depends(get_session),
 ) -> Response:
 
     # TODO: Add permission (Only for admin)
@@ -56,13 +58,13 @@ async def update_user(
     user_obj = api.update_user(
         db_session=db_session,
         user_id=authorization,
-        username=request.username,
-        email=request.email)
+        update_data=request
+    )
     result = serializer.dump(user_obj)
     return create_response(code=200, status='Created', message='Success', result=result)
 
 
-@router.post('/change_password')
+@router.post('/change_password/')
 @login_required
 async def change_password(
         request: ChangePasswordRequest,
@@ -81,8 +83,8 @@ async def change_password(
 
 
 @router.post('/signup/')
-async def create_user(request: UserPostSchema, db_session: Session = Depends(get_session)) -> Response:
-    api.create_user(db_session=db_session, user=request.parameter)
+async def create_user(request: UserSchema, db_session: Session = Depends(get_session)) -> Response:
+    api.create_user(db_session=db_session, user=request)
     return create_response(code=201, status='Created', message='Success')
 
 
@@ -93,10 +95,8 @@ async def login(request: UserLoginRequest, db_session: Session = Depends(get_ses
 
 
 @router.post('/refresh/')
-@login_required
 async def refresh_token(
         request: RefreshTokenRequest,
-        authorization: Union[str, None] = Header(default=None, convert_underscores=False),
         db_session: Session = Depends(get_session)
 ) -> Response:
 
