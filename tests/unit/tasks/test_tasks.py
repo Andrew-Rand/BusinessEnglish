@@ -191,8 +191,10 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
         response = self.CLIENT.post('/task/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
     def test_task_update_if_doesnt_exist(self):
@@ -206,8 +208,10 @@ class TestTaskAPIBad(TestTaskBase):
     def test_task_update_if_empty_body(self):
 
         response = self.CLIENT.put(f'/task/task/{self.TASK_ID}/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
     def test_task_delete_if_doesnt_exist(self):
 
@@ -241,5 +245,7 @@ class TestTaskAPIBad(TestTaskBase):
 
         response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
