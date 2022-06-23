@@ -44,11 +44,9 @@ def update_user(db_session: Session, user_id: str, data: Dict[str, Any]) -> User
     if not user_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    user_obj.username = data['username'] if data.get('username') else user_obj.username
-    user_obj.email = data['email'] if data.get('email') else user_obj.email
-    user_obj.successed_tasks = data['successed_tasks'] if data.get('successed_tasks') else user_obj.successed_tasks
-    user_obj.streak = data['streak'] if data.get('streak') else user_obj.streak
-    user_obj.is_admin = data['is_admin'] if data.get('is_admin') else user_obj.is_admin
+    for attribute in data:
+        setattr(user_obj, attribute, data[attribute])
+
     db_session.commit()
     db_session.refresh(user_obj)
 
