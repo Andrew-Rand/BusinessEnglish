@@ -11,8 +11,8 @@ alembic = "==1.7.7"
 psycopg2-binary = "==2.9.3"
 werkzeug = "==2.1.2"
 pyjwt = "==2.1.0"
-marshmallow-sqlalchemy = "*"
-requests = "*"
+marshmallow-sqlalchemy = "==0.28.0"
+requests = "==2.28.0"
 
 [dev-packages]
 

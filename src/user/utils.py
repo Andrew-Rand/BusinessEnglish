@@ -1,7 +1,8 @@
 import datetime
 from functools import wraps
-from typing import Any, Union
+from typing import Any
 
+from fastapi import Request
 import jwt
 
 from src.basecore.error_handler import ForbiddenError, NotFoundError
@@ -23,12 +24,12 @@ def create_token(user_id: str, time_delta_seconds: int) -> str:
 
 def login_required(func: Any) -> Any:
     @wraps(func)
-    async def wrapper(authorization: Union[str, None] = None, *args: Any, **kwargs: Any) -> Any:
+    async def wrapper(request: Request, user_id: None, *args: Any, **kwargs: Any) -> Any:
         # TODO: Move strings messages to constants
-        if not authorization:
+        if not request.headers.get('Authorization'):
             raise ForbiddenError('Token is missing')
         try:
-            payload = jwt.decode(authorization, SECRET_KEY, algorithms=['HS256'])
+            payload = jwt.decode(request.headers['Authorization'], SECRET_KEY, algorithms=['HS256'])
         except jwt.ExpiredSignatureError:
             raise ForbiddenError('Access token is expired, go to the refresh endpoint')
         except jwt.InvalidTokenError:
@@ -40,6 +41,6 @@ def login_required(func: Any) -> Any:
             if user_obj is None:
                 raise NotFoundError('User is not found')
 
-        return await func(authorization=str(user_obj.id), *args, **kwargs)
+        return await func(request=request, user_id=str(user_obj.id), *args, **kwargs)
 
     return wrapper

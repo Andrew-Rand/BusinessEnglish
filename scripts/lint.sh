@@ -54,6 +54,14 @@ function lint() {
     start_section "LINTING PYLINT"
     pylint --errors-only -j 4 $1 --disable=import-error
     end_section 0
+
+    start_section "LINTING PYCODESTYLE"
+    pycodestyle $1  --exclude migrations
+    end_section 0
+
+    start_section "LINTING MYPY"
+    mypy $1
+    end_section 0
 }
 
 

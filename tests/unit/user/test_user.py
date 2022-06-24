@@ -2,10 +2,10 @@ import json
 import unittest
 from copy import deepcopy
 
+from sqlalchemy.orm import Session
 from starlette.testclient import TestClient
 from werkzeug.security import generate_password_hash
 
-from src.basecore.error_handler import NOT_FOUND_ERROR_MESSAGE
 from src.db.db_config import get_session
 from src.main import app
 from src.user.models import User
@@ -15,7 +15,7 @@ from src.user.utils import create_token
 class TestUserBase(unittest.TestCase):
     # Expected attributes:
 
-    USER_ID = 0
+    USER_ID = '0'
     USER_SIGNUP_DATA = {
         "username": "Andrew",
         "email": "andrew@gmail.com",
@@ -39,10 +39,10 @@ class TestUserBase(unittest.TestCase):
                     "sImV4cCI6MTY1NTExOTIyNSwiaWF0IjoxNjU1MTE4MDI1fQ.KaJi3r9496aIeElF07ByOU9hSKq3hPQLOqJ8vRdF5HE"
 
     @property
-    def session(self):
+    def session(self) -> Session:
         return get_session()
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Run before every test to prepare a database"""
 
         with get_session() as session:
@@ -56,7 +56,7 @@ class TestUserBase(unittest.TestCase):
             session.refresh(user_obj)
             self.USER_ID = str(user_obj.id)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Run after each tests in this class"""
 
         # rm all test data from db
@@ -67,7 +67,7 @@ class TestUserBase(unittest.TestCase):
 
 class TestUserAPIOk(TestUserBase):
 
-    def test_user_read(self):
+    def test_user_read(self) -> None:
 
         response = self.CLIENT.get('/user/', headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -78,7 +78,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertEqual(type(result['data']), list)
         self.assertEqual(len(result['data']), 1)
 
-    def test_user_read_by_id(self):
+    def test_user_read_by_id(self) -> None:
 
         response = self.CLIENT.get('/user/user/', headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -88,7 +88,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertEqual(result['message'], 'Success')
         self.assertEqual(result['data']['id'], self.USER_ID)
 
-    def test_user_update(self):
+    def test_user_update(self) -> None:
 
         response = self.CLIENT.put('/user/user/', json=self.USER_UPDATE_DATA, headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -100,7 +100,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertEqual(result['data']['username'], self.USER_UPDATE_DATA['username'])
         self.assertEqual(result['data']['email'], self.USER_UPDATE_DATA['email'])
 
-    def test_user_change_password(self):
+    def test_user_change_password(self) -> None:
 
         response = self.CLIENT.post('/user/change_password/', json=self.USER_CHANGE_PASSWORD_DATA, headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -110,7 +110,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertEqual(result['message'], 'Success')
         self.assertEqual(result['data'], None)
 
-    def test_user_signup(self):
+    def test_user_signup(self) -> None:
 
         response = self.CLIENT.post('/user/signup/', json=self.USER_SIGNUP_DATA)
         result = json.loads(response.content)
@@ -119,7 +119,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertEqual(result['message'], 'Success')
         self.assertEqual(result['data'], None)
 
-    def test_user_login(self):
+    def test_user_login(self) -> None:
         response = self.CLIENT.post('/user/login/', json=self.USER_LOGIN_DATA)
         result = json.loads(response.content)
 
@@ -128,7 +128,7 @@ class TestUserAPIOk(TestUserBase):
         self.assertIn('access_token', result['data'].keys())
         self.assertIn('refresh_token', result['data'].keys())
 
-    def test_user_refresh(self):
+    def test_user_refresh(self) -> None:
         response = self.CLIENT.post('/user/refresh/',
                                     json={"refresh_token": create_token(user_id=self.USER_ID, time_delta_seconds=200)})
         result = json.loads(response.content)
@@ -141,7 +141,7 @@ class TestUserAPIOk(TestUserBase):
 
 class TestUserAPIBad(TestUserBase):
 
-    def test_user_read_if_not_authorized(self):
+    def test_user_read_if_not_authorized(self) -> None:
 
         response = self.CLIENT.get('/user/')
         result = json.loads(response.content)
@@ -149,7 +149,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Token is missing', result['message'])
 
-    def test_user_read_if_incorrect_token(self):
+    def test_user_read_if_incorrect_token(self) -> None:
 
         response = self.CLIENT.get('/user/', headers={'Authorization': 'token'})
         result = json.loads(response.content)
@@ -157,7 +157,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Invalid token. Please log in again', result['message'])
 
-    def test_user_read_if_empty(self):
+    def test_user_read_if_empty(self) -> None:
 
         with get_session() as session:
             session.query(User).delete()
@@ -170,7 +170,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('User is not found', result['message'])
 
-    def test_user_read_by_id_if_not_authorized(self):
+    def test_user_read_by_id_if_not_authorized(self) -> None:
 
         response = self.CLIENT.get('/user/')
         result = json.loads(response.content)
@@ -178,7 +178,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Token is missing', result['message'])
 
-    def test_user_read_by_id_if_incorrect_token(self):
+    def test_user_read_by_id_if_incorrect_token(self) -> None:
 
         response = self.CLIENT.get('/user/', headers={'Authorization': 'token'})
         result = json.loads(response.content)
@@ -186,7 +186,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Invalid token. Please log in again', result['message'])
 
-    def test_user_read_by_id_if_expired_token(self):
+    def test_user_read_by_id_if_expired_token(self) -> None:
 
         response = self.CLIENT.get('/user/', headers={'Authorization': self.EXPIRED_TOKEN})
         result = json.loads(response.content)
@@ -194,7 +194,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Access token is expired, go to the refresh endpoint', result['message'])
 
-    def test_user_read_by_id_if_doesnt_exist(self):
+    def test_user_read_by_id_if_doesnt_exist(self) -> None:
 
         with get_session() as session:
             session.query(User).delete()
@@ -207,7 +207,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('User is not found', result['message'])
 
-    def test_user_update_if_not_authorized(self):
+    def test_user_update_if_not_authorized(self) -> None:
 
         response = self.CLIENT.put('/user/user/', json=self.USER_UPDATE_DATA)
         result = json.loads(response.content)
@@ -215,7 +215,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Token is missing', result['message'])
 
-    def test_user_update_if_incorrect_token(self):
+    def test_user_update_if_incorrect_token(self) -> None:
 
         response = self.CLIENT.put('/user/user/', json=self.USER_UPDATE_DATA, headers={'Authorization': 'token'})
         result = json.loads(response.content)
@@ -223,7 +223,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Invalid token. Please log in again', result['message'])
 
-    def test_user_change_password_if_doesnt_exist(self):
+    def test_user_change_password_if_doesnt_exist(self) -> None:
 
         with get_session() as session:
             session.query(User).delete()
@@ -236,7 +236,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('User is not found', result['message'])
 
-    def test_user_change_password_if_not_authprized(self):
+    def test_user_change_password_if_not_authprized(self) -> None:
 
         response = self.CLIENT.post('/user/change_password/', json=self.USER_CHANGE_PASSWORD_DATA)
         result = json.loads(response.content)
@@ -244,7 +244,7 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Token is missing', result['message'])
 
-    def test_user_change_password_if_incorrect_token(self):
+    def test_user_change_password_if_incorrect_token(self) -> None:
 
         response = self.CLIENT.post('/user/change_password/', json=self.USER_CHANGE_PASSWORD_DATA,
                                     headers={'Authorization': 'token'})
@@ -253,13 +253,15 @@ class TestUserAPIBad(TestUserBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Invalid token. Please log in again', result['message'])
 
-    def test_user_signup_if_empty_data(self):
+    def test_user_signup_if_empty_data(self) -> None:
 
         response = self.CLIENT.post('/user/signup/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
-    def test_user_signup_if_incorrect_request_values(self):
+    def test_user_signup_if_incorrect_request_values(self) -> None:
 
         incorrect_values = {
             "username": 24,
@@ -275,34 +277,38 @@ class TestUserAPIBad(TestUserBase):
 
             self.assertEqual(response.status_code, 400)
 
-    def test_user_login_if_wrong_creds(self):
+    def test_user_login_if_wrong_creds(self) -> None:
 
-        response = self.CLIENT.post('/user/login/', json=self.USER_SIGNUP_DATA)
+        response = self.CLIENT.post('/user/login/', json={"email": 'wrong@gmail.com', "password": "wrong"})
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 400)
-        self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
+        self.assertIn("'password': ['String does not match expected pattern.']", result['message'])
 
-    def test_user_login_if_empty_request_data(self):
+    def test_user_login_if_empty_request_data(self) -> None:
 
         response = self.CLIENT.post('/user/login/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
-    def test_user_refresh_if_empty_request_data(self):
+    def test_user_refresh_if_empty_request_data(self) -> None:
 
         response = self.CLIENT.post('/user/refresh/')
+        result = json.loads(response.content)
 
-        self.assertEqual(response.status_code, 422)
+        self.assertEqual(response.status_code, 400)
+        self.assertIn('Expecting value', result['message'])
 
-    def test_user_refresh_if_incorrect_token(self):
+    def test_user_refresh_if_incorrect_token(self) -> None:
         response = self.CLIENT.post('/user/refresh/', json={"refresh_token": "token"})
         result = json.loads(response.content)
 
         self.assertEqual(response.status_code, 403)
         self.assertIn('Invalid token. Please log in again', result['message'])
 
-    def test_user_refresh_if_expired_token(self):
+    def test_user_refresh_if_expired_token(self) -> None:
         response = self.CLIENT.post('/user/refresh/', json={"refresh_token": self.EXPIRED_TOKEN})
         result = json.loads(response.content)
 

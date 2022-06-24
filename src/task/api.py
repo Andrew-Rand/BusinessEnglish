@@ -1,12 +1,11 @@
 from random import choice
-from typing import List, Union
+from typing import List, Union, Any, Dict
 from uuid import UUID
 
 from sqlalchemy.orm import Session, Query
 
 from src.basecore.error_handler import NotFoundError, NOT_FOUND_ERROR_MESSAGE
 from src.task.models import Task
-from src.task.serializers import TaskSchema
 from src.user.api import get_user_by_id
 
 
@@ -25,9 +24,9 @@ def get_task_by_id(db_session: Session, task_id: UUID) -> Query:
     return task_obj
 
 
-def create_task(db_session: Session, task: TaskSchema) -> Task:
+def create_task(db_session: Session, data: Dict[str, Any]) -> Task:
 
-    task_obj = Task(type=task.type, question=task.question, answer=task.answer)
+    task_obj = Task(type=data['type'], question=data['question'], answer=data['answer'])
     db_session.add(task_obj)
     db_session.commit()
     db_session.refresh(task_obj)
@@ -46,14 +45,14 @@ def remove_task(db_session: Session, task_id: UUID):
     db_session.commit()
 
 
-def update_task(db_session: Session, task_id: UUID, question: List[str], answer: List[str]) -> Task:
+def update_task(db_session: Session, task_id: UUID, data: Dict[str, Any]) -> Task:
     task_obj = get_task_by_id(db_session=db_session, task_id=task_id)
 
     if not task_obj:
         raise NotFoundError(NOT_FOUND_ERROR_MESSAGE)
 
-    task_obj.question = question
-    task_obj.answer = answer
+    task_obj.question = data['question']
+    task_obj.answer = data['answer']
     db_session.commit()
     db_session.refresh(task_obj)
     return task_obj
