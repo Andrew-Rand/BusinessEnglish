@@ -1,8 +1,9 @@
 from uuid import uuid4
 
 from marshmallow_sqlalchemy import SQLAlchemyAutoSchema
-from marshmallow import Schema, fields
+from marshmallow import Schema, fields, validate
 
+from src.task.constants import TaskType
 from src.task.models import Task
 
 
@@ -16,7 +17,7 @@ class TaskSchemaSerializer(SQLAlchemyAutoSchema):
 
 class TaskSerializer(Schema):
     id = fields.UUID(default=uuid4())
-    type = fields.Int()
+    type = fields.Int(validate=validate.OneOf([e.value for e in TaskType]))
     question = fields.List(cls_or_instance=fields.Str)
     answer = fields.List(cls_or_instance=fields.Str)
 
