@@ -3,6 +3,7 @@ import unittest
 from uuid import uuid4
 
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
 from werkzeug.security import generate_password_hash
 
 from src.basecore.error_handler import NOT_FOUND_ERROR_MESSAGE
@@ -16,8 +17,8 @@ from src.user.utils import create_token
 class TestTaskBase(unittest.TestCase):
     # Expected attributes:
 
-    TASK_ID = 0
-    USER_ID = 0
+    TASK_ID = '0'
+    USER_ID = '0'
     CLIENT = TestClient(app)
     TASK_POST_DATA = {
         "question": ["Could you repeate please"],
@@ -33,10 +34,10 @@ class TestTaskBase(unittest.TestCase):
     TASK_CHECK_DATA = {'answer': TASK_POST_DATA["answer"][0]}
 
     @property
-    def session(self):
+    def session(self) -> Session:
         return get_session()
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Run before every test to prepare a database"""
 
         with get_session() as session:
@@ -60,7 +61,7 @@ class TestTaskBase(unittest.TestCase):
             session.refresh(user_obj)
             self.USER_ID = str(user_obj.id)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Run after each tests in this class"""
 
         # rm all test data from db
@@ -72,7 +73,7 @@ class TestTaskBase(unittest.TestCase):
 
 class TestTaskAPIOk(TestTaskBase):
 
-    def test_task_read(self):
+    def test_task_read(self) -> None:
 
         response = self.CLIENT.get('/task/')
         result = json.loads(response.content)
@@ -82,7 +83,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(type(result['data']), list)
         self.assertEqual(len(result['data']), 1)
 
-    def test_task_read_if_empty(self):
+    def test_task_read_if_empty(self) -> None:
 
         with get_session() as session:
             session.query(Task).delete()
@@ -96,7 +97,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(type(result['data']), list)
         self.assertEqual(len(result['data']), 0)
 
-    def test_task_read_by_id(self):
+    def test_task_read_by_id(self) -> None:
 
         response = self.CLIENT.get(f'/task/task/{self.TASK_ID}/')
         result = json.loads(response.content)
@@ -105,7 +106,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(result['message'], 'Success')
         self.assertEqual(result['data']['id'], self.TASK_ID)
 
-    def test_task_create(self):
+    def test_task_create(self) -> None:
 
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
@@ -114,7 +115,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(self.session.query(Task).all()), 2)
 
-    def test_task_update(self):
+    def test_task_update(self) -> None:
 
         response = self.CLIENT.put(f'/task/task/{self.TASK_ID}/', json=self.TASK_UPDATE_DATA)
         result = json.loads(response.content)
@@ -125,7 +126,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(result['data']['question'], self.TASK_UPDATE_DATA['question'])
         self.assertEqual(result['data']['answer'], self.TASK_UPDATE_DATA['answer'])
 
-    def test_task_delete(self):
+    def test_task_delete(self) -> None:
 
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
@@ -134,7 +135,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(self.session.query(Task).all()), 0)
 
-    def test_task_get_random(self):
+    def test_task_get_random(self) -> None:
 
         response = self.CLIENT.get('/task/get_random/')
         result = json.loads(response.content)
@@ -143,7 +144,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(result['message'], 'Success')
         self.assertIn(result['data']['id'], [str(task.id) for task in self.session.query(Task).all()])
 
-    def test_task_get_random_if_empty(self):
+    def test_task_get_random_if_empty(self) -> None:
 
         with get_session() as session:
             session.query(Task).delete()
@@ -156,7 +157,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(result['message'], 'Success')
         self.assertFalse(result['data'])
 
-    def test_task_check(self):
+    def test_task_check(self) -> None:
 
         response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json=self.TASK_CHECK_DATA, headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -166,7 +167,7 @@ class TestTaskAPIOk(TestTaskBase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(result['message'], 'Success')
 
-    def test_task_check_if_wrong_answer(self):
+    def test_task_check_if_wrong_answer(self) -> None:
 
         response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json={'answer': 'wrong'}, headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -178,7 +179,7 @@ class TestTaskAPIOk(TestTaskBase):
 
 class TestTaskAPIBad(TestTaskBase):
 
-    def test_task_read_by_id_if_doesnt_exist(self):
+    def test_task_read_by_id_if_doesnt_exist(self) -> None:
 
         response = self.CLIENT.get(f'/task/task/{uuid4()}')
         result = json.loads(response.content)
@@ -186,7 +187,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
 
-    def test_task_create_if_empty_post_data(self):
+    def test_task_create_if_empty_post_data(self) -> None:
 
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
@@ -197,7 +198,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertIn('Expecting value', result['message'])
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
-    def test_task_update_if_doesnt_exist(self):
+    def test_task_update_if_doesnt_exist(self) -> None:
 
         response = self.CLIENT.put(f'/task/task/{uuid4()}/', json=self.TASK_UPDATE_DATA)
         result = json.loads(response.content)
@@ -205,7 +206,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
 
-    def test_task_update_if_empty_body(self):
+    def test_task_update_if_empty_body(self) -> None:
 
         response = self.CLIENT.put(f'/task/task/{self.TASK_ID}/')
         result = json.loads(response.content)
@@ -213,7 +214,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('Expecting value', result['message'])
 
-    def test_task_delete_if_doesnt_exist(self):
+    def test_task_delete_if_doesnt_exist(self) -> None:
 
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
@@ -224,7 +225,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
         self.assertEqual(len(self.session.query(Task).all()), 1)
 
-    def test_task_check_if_not_authorized(self):
+    def test_task_check_if_not_authorized(self) -> None:
 
         response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', json=self.TASK_CHECK_DATA)
         result = json.loads(response.content)
@@ -232,7 +233,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(response.status_code, 403)
         self.assertIn('Token is missing', result['message'])
 
-    def test_task_check_if_doesnt_exist(self):
+    def test_task_check_if_doesnt_exist(self) -> None:
 
         response = self.CLIENT.post(f'/task/check_task/{uuid4()}/', json=self.TASK_CHECK_DATA, headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
@@ -241,7 +242,7 @@ class TestTaskAPIBad(TestTaskBase):
         self.assertEqual(response.status_code, 400)
         self.assertIn(NOT_FOUND_ERROR_MESSAGE, result['message'])
 
-    def test_task_check_if_empty_answer(self):
+    def test_task_check_if_empty_answer(self) -> None:
 
         response = self.CLIENT.post(f'/task/check_task/{self.TASK_ID}/', headers={
             'Authorization': create_token(user_id=self.USER_ID, time_delta_seconds=200)})
